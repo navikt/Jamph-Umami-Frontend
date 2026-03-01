@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import ResultsPanel from '../chartbuilder/results/ResultsPanel';
 import ShareResultsModal from '../chartbuilder/results/ShareResultsModal';
 import DownloadResultsModal from '../chartbuilder/results/DownloadResultsModal';
-import { Button, Alert, Modal } from '@navikt/ds-react';
+import { Button, Modal } from '@navikt/ds-react';
 import Editor from '@monaco-editor/react';
 import * as sqlFormatter from 'sql-formatter';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -27,6 +27,7 @@ const boxClass = 'bg-green-50 p-4 border border-green-100 w-full h-full flex fle
 function guessChartType(prompt: string): string {
     const p = prompt.toLowerCase();
     if (/sideflyt|beveger|flyt|navigasjon|navigerer|reise|brukerreise/.test(p)) return 'stegvisning';
+    if (/regresjon|korrelasjon|lineær|trend.*linje|stigningstall|r2|r²|rmse|prediksjon/.test(p)) return 'regresjon';
     if (/daglig|m.ned|ukentlig|tidslinje|over tid|trend|utvikling|per dag|per m.ned/.test(p)) return 'linechart';
     if (/andel|prosent|fordeling|kake/.test(p)) return 'piechart';
     if (/topp|mest|flest|rangering|sammenlign|stolpe/.test(p)) return 'barchart';
@@ -51,6 +52,7 @@ const WIDGET_SIZES: Record<string, WidgetSize[]> = {
     barchart:  [{ cols: 1, rows: 1, name: 'Standard' }],
     piechart:     [{ cols: 1, rows: 1, name: 'Standard' }],
     stegvisning:  [{ cols: 2, rows: 1, name: 'Standard' }],
+    regresjon:    [{ cols: 1, rows: 1, name: 'Standard' }],
 };
 
 interface Props {
@@ -89,6 +91,8 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const shouldAutoExecuteRef = useRef(false);
     const [journeyData, setJourneyData] = useState<{ nodes: any[]; links: any[] } | null>(null);
     const [journeyLoading, setJourneyLoading] = useState(false);
+    const defaultRegressionTitle = `Lineær regresjon: daglige sidevisninger for ${pathLabel} (2025)`;
+    const [regressionTitle, setRegressionTitle] = useState(defaultRegressionTitle);
 
     const MAX_VISIBLE_TABS = 5;
     const visibleTabs = allTabs.slice(0, MAX_VISIBLE_TABS);
@@ -120,6 +124,11 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
         {
             prompt: `Eksterne nettsider besøkende kommer fra`,
             sql: `SELECT\n  COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(DISTINCT session_id) AS unike_besokende\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY kilde\nORDER BY unike_besokende DESC\nLIMIT 1000;`,
+        },
+        {
+            prompt: `Lineær regresjon: trend i daglige sidevisninger for ${pathLabel}`,
+            sql: '',
+            tab: 'regresjon',
         },
     ];
 
@@ -167,6 +176,7 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
         } finally {
             const guessed = guessChartType(basePrompt);
             setP2Tab(guessed);
+            if (guessed === 'regresjon') setRegressionTitle(basePrompt || defaultRegressionTitle);
             shouldAutoExecuteRef.current = guessed !== 'stegvisning';
             setStep(2);
         }
@@ -245,8 +255,25 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     };
 
     useEffect(() => {
-        if (p2Tab === 'stegvisning' && step === 2 && !journeyLoading) {
+        if (step !== 2) return;
+        if (p2Tab === 'stegvisning' && !journeyLoading) {
             fetchJourneyData();
+        } else if (p2Tab === 'regresjon' && !result && !loading) {
+            const sql = buildRegressionSQL();
+            setQuery(sql);
+            // Call the API directly with the built SQL — cannot rely on setQuery having
+            // updated the `query` state yet (React state updates are asynchronous).
+            setLoading(true);
+            setError(null);
+            setResult(null);
+            fetch('/api/bigquery', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: sql, analysisType: 'AI bygger - regresjon' }),
+            })
+                .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error || 'Query failed'); setResult(d); }))
+                .catch((err: any) => setError(err.message || 'An error occurred'))
+                .finally(() => setLoading(false));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [p2Tab, step]);
@@ -335,6 +362,82 @@ INNER JOIN valid_pages_per_step v
 ORDER BY step, value DESC`;
     };
 
+    const buildRegressionSQL = () => {
+        const pathFilter = pathConditionSQL.trim();
+        return `WITH base AS (
+  SELECT CAST(x AS FLOAT64) AS x, CAST(y AS FLOAT64) AS y FROM (
+    SELECT
+      DATE_DIFF(DATE(created_at), DATE('2025-01-01'), DAY) + 1 AS x,
+      COUNT(*) AS y
+    FROM \`fagtorsdag-prod-81a6.umami_student.event\`
+    WHERE event_type = 1
+      AND website_id = '${websiteId}'
+      ${pathFilter}
+      AND EXTRACT(YEAR FROM created_at) = 2025
+    GROUP BY x
+  )
+),
+stats AS (
+  SELECT COUNT(*) AS n, AVG(x) AS x_bar, AVG(y) AS y_bar,
+         VAR_SAMP(x) AS var_x, COVAR_SAMP(x, y) AS cov_xy
+  FROM base
+),
+params AS (
+  SELECT n, x_bar, y_bar,
+    SAFE_DIVIDE(cov_xy, var_x) AS slope,
+    y_bar - SAFE_DIVIDE(cov_xy, var_x) * x_bar AS intercept
+  FROM stats
+),
+resid AS (
+  SELECT b.x, b.y, p.n, p.x_bar, p.y_bar, p.slope, p.intercept,
+    b.y - (p.intercept + p.slope * b.x) AS r
+  FROM base b CROSS JOIN params p
+),
+sums AS (
+  SELECT MIN(n) AS n, MIN(intercept) AS a, MIN(slope) AS b,
+         MIN(x_bar) AS x_bar, MIN(y_bar) AS y_bar,
+    SUM(POW(r, 2)) AS sse,
+    SUM(POW(y - y_bar, 2)) AS sst,
+    SUM(POW(x - x_bar, 2)) AS sxx
+  FROM resid
+),
+m AS (
+  SELECT n, a, b,
+    1 - SAFE_DIVIDE(sse, sst) AS r2,
+    SQRT(SAFE_DIVIDE(sse, n - 2)) AS rmse,
+    SQRT(SAFE_DIVIDE(SAFE_DIVIDE(sse, n - 2), sxx)) AS se_b,
+    SQRT(SAFE_DIVIDE(sse, n - 2) * (1.0 / n + POW(x_bar, 2) / sxx)) AS se_a
+  FROM sums
+),
+pv AS (
+  SELECT n, a, b, r2, rmse, se_a, se_b,
+    SAFE_DIVIDE(a, se_a) AS t_a,
+    SAFE_DIVIDE(b, se_b) AS t_b,
+    -- Two-tailed p-value via Abramowitz & Stegun normal approximation
+    GREATEST(0, 2 * EXP(-0.5 * POW(ABS(SAFE_DIVIDE(a, se_a)), 2)) / 2.506628 * (
+       0.4361836 / (1 + 0.33267 * ABS(SAFE_DIVIDE(a, se_a)))
+      - 0.1201676 / POW(1 + 0.33267 * ABS(SAFE_DIVIDE(a, se_a)), 2)
+      + 0.9372980 / POW(1 + 0.33267 * ABS(SAFE_DIVIDE(a, se_a)), 3))) AS p_a,
+    GREATEST(0, 2 * EXP(-0.5 * POW(ABS(SAFE_DIVIDE(b, se_b)), 2)) / 2.506628 * (
+       0.4361836 / (1 + 0.33267 * ABS(SAFE_DIVIDE(b, se_b)))
+      - 0.1201676 / POW(1 + 0.33267 * ABS(SAFE_DIVIDE(b, se_b)), 2)
+      + 0.9372980 / POW(1 + 0.33267 * ABS(SAFE_DIVIDE(b, se_b)), 3))) AS p_b
+  FROM m
+)
+SELECT 'Skjæringspunkt (a)' AS term,
+  ROUND(a, 4) AS estimat, ROUND(se_a, 4) AS std_feil,
+  ROUND(t_a, 3) AS t_verdi, ROUND(p_a, 4) AS p_verdi,
+  ROUND(r2, 4) AS r2, ROUND(rmse, 3) AS rmse, n
+FROM pv
+UNION ALL
+SELECT 'Stigningstall (b)',
+  ROUND(b, 4), ROUND(se_b, 4),
+  ROUND(t_b, 3), ROUND(p_b, 4),
+  ROUND(r2, 4), ROUND(rmse, 3), n
+FROM pv
+ORDER BY term`;
+    };
+
     const copyForMetabase = async () => {
         try {
             await navigator.clipboard.writeText(query);
@@ -380,7 +483,6 @@ ORDER BY step, value DESC`;
             {/* ── STEP 2 ── */}
             {step === 2 && (
                 <div className="w-full h-full">
-                    {error && <Alert variant="error" className="mb-2">{error}</Alert>}
                     <div className={boxClass}>
                         <div style={{ height: '10%', display: 'flex', alignItems: 'center', position: 'relative' }}>
                             {visibleTabs.map((tab) => (
@@ -418,7 +520,7 @@ ORDER BY step, value DESC`;
                                         : journeyData
                                             ? <UmamiJourneyView nodes={journeyData.nodes} links={journeyData.links} journeyDirection="forward" websiteId={websiteId} />
                                             : <div className="flex flex-col items-center justify-center h-full gap-3">
-                                                <p className="text-gray-500 text-sm text-center">Klarer ikke å vise sideflyt. Ingen navigasjonsdata for valgt side og periode.</p>
+                                                <p className="text-gray-500 text-sm text-center">{journeyError ?? 'Ingen navigasjonsdata for valgt side og periode.'}</p>
                                                 <button type="button" className="text-sm text-blue-600 underline" onClick={fetchJourneyData}>Last inn på nytt</button>
                                               </div>
                                 ) : <ResultsPanel
@@ -444,7 +546,9 @@ ORDER BY step, value DESC`;
                                     disabled={p2Tab === 'stegvisning' ? !journeyData : !result?.data?.length}
                                     onClick={() => {
                                         const sizes = WIDGET_SIZES[p2Tab] ?? [{ cols: 1, rows: 1, name: 'Standard' }];
-                                        const widgetResult = p2Tab === 'stegvisning' ? journeyData : result;
+                                        const widgetResult = p2Tab === 'stegvisning' ? journeyData
+                                            : p2Tab === 'regresjon' ? { rows: result?.data, r2: result?.data?.[0]?.r2, rmse: result?.data?.[0]?.rmse, n: result?.data?.[0]?.n, title: regressionTitle }
+                                            : result;
                                         if (sizes.length === 1) {
                                             onAddWidget(query, p2Tab, widgetResult, sizes[0]);
                                         } else {
@@ -493,8 +597,8 @@ ORDER BY step, value DESC`;
                         <div className="border rounded overflow-hidden" style={{ height: '100%' }}>
                             <Editor
                                 height="100%" defaultLanguage="sql"
-                                value={p2Tab === 'stegvisning' ? buildJourneySQL() : query}
-                                onChange={(v) => { if (p2Tab !== 'stegvisning') { setQuery(v || ''); setFormatSuccess(false); } }}
+                                value={p2Tab === 'stegvisning' ? buildJourneySQL() : p2Tab === 'regresjon' ? buildRegressionSQL() : query}
+                                onChange={(v) => { if (p2Tab !== 'stegvisning' && p2Tab !== 'regresjon') { setQuery(v || ''); setFormatSuccess(false); } }}
                                 theme="vs-dark"
                                 options={{ minimap: { enabled: false }, fontSize: 14, lineNumbers: 'on', scrollBeyondLastLine: false, automaticLayout: true, tabSize: 2, wordWrap: 'on', fixedOverflowWidgets: true, stickyScroll: { enabled: false }, lineNumbersMinChars: 4, glyphMargin: false }}
                             />
@@ -529,8 +633,16 @@ ORDER BY step, value DESC`;
                         if (selectedTidligere !== null) {
                             const item = tidligereSpørringer[selectedTidligere];
                             setAiPrompt(item.prompt);
-                            if (item.tab) {
+                            if (item.tab === 'stegvisning') {
                                 setP2Tab(item.tab);
+                                setStep(2);
+                            } else if (item.tab === 'regresjon') {
+                                const sql = buildRegressionSQL();
+                                setQuery(sql);
+                                setResult(null);
+                                setRegressionTitle(item.prompt || defaultRegressionTitle);
+                                setP2Tab('regresjon');
+                                shouldAutoExecuteRef.current = true;
                                 setStep(2);
                             } else {
                                 setQuery(item.sql);
