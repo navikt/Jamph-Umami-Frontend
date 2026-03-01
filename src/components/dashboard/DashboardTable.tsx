@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import '../../styles/charts.css';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface Props {
@@ -42,11 +43,11 @@ export default function DashboardTable({ data, title = 'Tabell' }: Props) {
     const keys = Object.keys(data[0]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff' }}>
+        <div className="widget-card">
             {/* Title + search bar */}
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', flexShrink: 0 }}>
+            <div className="widget-header">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ fontWeight: 600, fontSize: 13, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
+                    <span className="widget-title" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</span>
                     <input
                         type="search"
                         placeholder="Søk…"

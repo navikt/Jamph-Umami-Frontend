@@ -1,0 +1,27 @@
+/* Shared styles for pinned dashboard chart widgets */
+
+.widget-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+
+.widget-header {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.widget-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: #111827;
+}
+
+.widget-body {
+    flex: 1;
+    padding: 8px;
+    overflow: hidden;
+}

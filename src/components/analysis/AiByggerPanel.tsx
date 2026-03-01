@@ -46,13 +46,13 @@ const allTabs = [
 type WidgetSize = { cols: number; rows: number; name: string };
 
 const WIDGET_SIZES: Record<string, WidgetSize[]> = {
-    table:     [{ cols: 1, rows: 1, name: 'Standard' }],
-    linechart: [{ cols: 1, rows: 1, name: 'Standard' }],
-    areachart: [{ cols: 1, rows: 1, name: 'Standard' }],
-    barchart:  [{ cols: 1, rows: 1, name: 'Standard' }],
-    piechart:     [{ cols: 1, rows: 1, name: 'Standard' }],
-    stegvisning:  [{ cols: 2, rows: 1, name: 'Standard' }],
-    regresjon:    [{ cols: 1, rows: 1, name: 'Standard' }],
+    table:       [{ cols: 1, rows: 1, name: 'Standard' }],
+    linechart:   [{ cols: 1, rows: 1, name: 'Standard' }],
+    areachart:   [{ cols: 1, rows: 1, name: 'Standard' }],
+    barchart:    [{ cols: 1, rows: 1, name: 'Standard' }],
+    piechart:    [{ cols: 1, rows: 2, name: '1×2' }, { cols: 2, rows: 1, name: '2×1' }],
+    stegvisning: [{ cols: 2, rows: 1, name: 'Standard' }],
+    regresjon:   [{ cols: 1, rows: 1, name: 'Standard' }],
 };
 
 interface Props {
@@ -61,7 +61,7 @@ interface Props {
     readonly pathOperator: string;
     readonly startDate?: Date;
     readonly endDate?: Date;
-    readonly onAddWidget?: (sql: string, chartType: string, result: any, size: { cols: number; rows: number }) => void;
+    readonly onAddWidget?: (sql: string, chartType: string, result: any, size: { cols: number; rows: number }, title: string) => void;
 }
 
 export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propStartDate, endDate: propEndDate, onAddWidget }: Props) {
@@ -80,7 +80,7 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const [error, setError] = useState<string | null>(null);
     const [shareModalOpen, setShareModalOpen] = useState(false);
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
-    const [pendingAdd, setPendingAdd] = useState<{ sql: string; chartType: string; result: any } | null>(null);
+    const [pendingAdd, setPendingAdd] = useState<{ sql: string; chartType: string; result: any; title: string } | null>(null);
     const [tidligereOpen, setTidligereOpen] = useState(false);
     const [selectedTidligere, setSelectedTidligere] = useState<number | null>(null);
     const [metabaseCopySuccess, setMetabaseCopySuccess] = useState(false);
@@ -93,42 +93,73 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const [journeyLoading, setJourneyLoading] = useState(false);
     const defaultRegressionTitle = `Lineær regresjon: daglige sidevisninger for ${pathLabel} (2025)`;
     const [regressionTitle, setRegressionTitle] = useState(defaultRegressionTitle);
+    const [isApiOnly, setIsApiOnly] = useState(false);
+    const [tabOrder, setTabOrder] = useState<string[]>([]);
+
+    const sortedTabs = tabOrder.length > 0
+        ? [...allTabs].sort((a, b) => {
+              const ai = tabOrder.indexOf(a.value);
+              const bi = tabOrder.indexOf(b.value);
+              if (ai === -1 && bi === -1) return 0;
+              if (ai === -1) return 1;
+              if (bi === -1) return -1;
+              return ai - bi;
+          })
+        : allTabs;
 
     const MAX_VISIBLE_TABS = 5;
-    const visibleTabs = allTabs.slice(0, MAX_VISIBLE_TABS);
-    const overflowTabs = allTabs.slice(MAX_VISIBLE_TABS);
+    const visibleTabs = sortedTabs.slice(0, MAX_VISIBLE_TABS);
+    const overflowTabs = sortedTabs.slice(MAX_VISIBLE_TABS);
     const activeIsOverflow = overflowTabs.some(t => t.value === p2Tab);
 
-    const tidligereSpørringer = [
+    const buildRegressionSQLInline = () => {
+        const pathFilter = pathConditionSQL.trim();
+        return `WITH base AS (\n  SELECT CAST(x AS FLOAT64) AS x, CAST(y AS FLOAT64) AS y FROM (\n    SELECT\n      DATE_DIFF(DATE(created_at), DATE('2025-01-01'), DAY) + 1 AS x,\n      COUNT(*) AS y\n    FROM \`fagtorsdag-prod-81a6.umami_student.event\`\n    WHERE event_type = 1\n      AND website_id = '${websiteId}'\n      ${pathFilter}\n      AND EXTRACT(YEAR FROM created_at) = 2025\n    GROUP BY x\n  )\n),\nstats AS (\n  SELECT COUNT(*) AS n, AVG(x) AS x_bar, AVG(y) AS y_bar,\n         VAR_SAMP(x) AS var_x, COVAR_SAMP(x, y) AS cov_xy\n  FROM base\n),\nparams AS (\n  SELECT n, x_bar, y_bar,\n    SAFE_DIVIDE(cov_xy, var_x) AS slope,\n    y_bar - SAFE_DIVIDE(cov_xy, var_x) * x_bar AS intercept\n  FROM stats\n)\nSELECT 'Skjæringspunkt (a)' AS term, ROUND(intercept, 4) AS estimat, n FROM params\nUNION ALL\nSELECT 'Stigningstall (b)', ROUND(slope, 4), n FROM params\nORDER BY term`;
+    };
+
+    const examplesAiBuilder = [
         {
             prompt: `Daglige sidevisninger for ${pathLabel} i 2025`,
+            title: `Daglige sidevisninger for ${pathLabel} i 2025`,
             sql: `SELECT\n  FORMAT_TIMESTAMP('%Y-%m-%d', created_at) AS dato,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY dato\nORDER BY dato ASC;`,
+            tabOrder: ['linechart','areachart','barchart','table','piechart','stegvisning'],
         },
         {
-            prompt: `Topp 10 mest besøkte undersider under ${path} i 2025`,
-            sql: `SELECT\n  url_path AS side,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY side\nORDER BY sidevisninger DESC\nLIMIT 10;`,
+            prompt: `Topp 12 mest besøkte undersider under ${path} i 2025`,
+            title: `Topp 12 sider under ${path}`,
+            sql: `SELECT\n  url_path AS side,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY side\nORDER BY sidevisninger DESC\nLIMIT 12;`,
+            tabOrder: ['barchart','table','piechart','linechart','areachart','stegvisning'],
         },
         {
             prompt: `Sidevisninger per måned for ${pathLabel} i 2025`,
+            title: `Sidevisninger per måned – ${pathLabel}`,
             sql: `SELECT\n  EXTRACT(MONTH FROM created_at) AS maaned,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY maaned\nORDER BY maaned ASC;`,
+            tabOrder: ['areachart','linechart','barchart','table','piechart','stegvisning'],
         },
         {
             prompt: `Hvordan beveger brukerne seg pa siden?`,
+            title: `Sideflyt fra ${path}`,
             sql: '',
-            tab: 'stegvisning',
+            tabOrder: ['stegvisning'],
+            apiOnly: true,
         },
         {
             prompt: `Trafikkilder for ${pathLabel} i november 2025`,
+            title: `Trafikkilder – ${pathLabel}`,
             sql: `SELECT\n  COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\n  AND EXTRACT(MONTH FROM created_at) = 11\nGROUP BY kilde\nORDER BY sidevisninger DESC\nLIMIT 15;`,
+            tabOrder: ['barchart','piechart','table','linechart','areachart','stegvisning'],
         },
         {
             prompt: `Eksterne nettsider besøkende kommer fra`,
+            title: `Inngående trafikkilder – ${pathLabel}`,
             sql: `SELECT\n  COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(DISTINCT session_id) AS unike_besokende\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY kilde\nORDER BY unike_besokende DESC\nLIMIT 1000;`,
+            tabOrder: ['barchart','piechart','table','linechart','areachart','stegvisning'],
         },
         {
             prompt: `Lineær regresjon: trend i daglige sidevisninger for ${pathLabel}`,
-            sql: '',
-            tab: 'regresjon',
+            title: `Regresjon: daglige sidevisninger – ${pathLabel}`,
+            sql: buildRegressionSQLInline(),
+            tabOrder: ['table','linechart','areachart','barchart','piechart','stegvisning'],
         },
     ];
 
@@ -550,9 +581,9 @@ ORDER BY term`;
                                             : p2Tab === 'regresjon' ? { rows: result?.data, r2: result?.data?.[0]?.r2, rmse: result?.data?.[0]?.rmse, n: result?.data?.[0]?.n, title: regressionTitle }
                                             : result;
                                         if (sizes.length === 1) {
-                                            onAddWidget(query, p2Tab, widgetResult, sizes[0]);
+                                            onAddWidget(query, p2Tab, widgetResult, sizes[0], aiPrompt);
                                         } else {
-                                            setPendingAdd({ sql: query, chartType: p2Tab, result: widgetResult });
+                                            setPendingAdd({ sql: query, chartType: p2Tab, result: widgetResult, title: aiPrompt });
                                         }
                                     }}
                                 >
@@ -573,7 +604,7 @@ ORDER BY term`;
                                             key={size.name}
                                             variant="secondary"
                                             onClick={() => {
-                                                onAddWidget(pendingAdd.sql, pendingAdd.chartType, pendingAdd.result, size);
+                                                onAddWidget(pendingAdd.sql, pendingAdd.chartType, pendingAdd.result, size, pendingAdd.title);
                                                 setPendingAdd(null);
                                             }}
                                         >
@@ -594,6 +625,13 @@ ORDER BY term`;
                         <h2 className="text-lg font-semibold text-gray-800">Avansert spørring</h2>
                     </div>
                     <div style={{ height: '80%', overflow: 'auto' }}>
+                        {isApiOnly ? (
+                            <div style={{ padding: '16px' }}>
+                                <div className="navds-alert navds-alert--info navds-alert--medium" role="alert">
+                                    Dette elementet henter data via API og har ingen SQL-kode.
+                                </div>
+                            </div>
+                        ) : (
                         <div className="border rounded overflow-hidden" style={{ height: '100%' }}>
                             <Editor
                                 height="100%" defaultLanguage="sql"
@@ -603,6 +641,7 @@ ORDER BY term`;
                                 options={{ minimap: { enabled: false }, fontSize: 14, lineNumbers: 'on', scrollBeyondLastLine: false, automaticLayout: true, tabSize: 2, wordWrap: 'on', fixedOverflowWidgets: true, stickyScroll: { enabled: false }, lineNumbersMinChars: 4, glyphMargin: false }}
                             />
                         </div>
+                        )}
                     </div>
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Button variant="secondary" size="small" icon={<ChevronLeft size={16} />} onClick={() => { shouldAutoExecuteRef.current = true; setStep(2); }}>Til resultater</Button>
@@ -618,11 +657,11 @@ ORDER BY term`;
             <Modal open={tidligereOpen} onClose={() => setTidligereOpen(false)} header={{ heading: 'Eksempelspørringer' }}>
                 <Modal.Body>
                     <div className="flex flex-col gap-2">
-                        {tidligereSpørringer.map((item) => (
+                        {examplesAiBuilder.map((item) => (
                             <button
                                 key={item.prompt} type="button"
-                                className={`text-left border rounded-md px-4 py-3 cursor-pointer w-full ${selectedTidligere === tidligereSpørringer.indexOf(item) ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
-                                onClick={() => setSelectedTidligere(tidligereSpørringer.indexOf(item))}>
+                                className={`text-left border rounded-md px-4 py-3 cursor-pointer w-full ${selectedTidligere === examplesAiBuilder.indexOf(item) ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
+                                onClick={() => setSelectedTidligere(examplesAiBuilder.indexOf(item))}>
                                 {item.prompt}
                             </button>
                         ))}
@@ -631,21 +670,19 @@ ORDER BY term`;
                 <Modal.Footer>
                     <Button variant="primary" disabled={selectedTidligere === null} onClick={() => {
                         if (selectedTidligere !== null) {
-                            const item = tidligereSpørringer[selectedTidligere];
-                            setAiPrompt(item.prompt);
-                            if (item.tab === 'stegvisning') {
-                                setP2Tab(item.tab);
-                                setStep(2);
-                            } else if (item.tab === 'regresjon') {
-                                const sql = buildRegressionSQL();
-                                setQuery(sql);
-                                setResult(null);
-                                setRegressionTitle(item.prompt || defaultRegressionTitle);
-                                setP2Tab('regresjon');
-                                shouldAutoExecuteRef.current = true;
+                            const item = examplesAiBuilder[selectedTidligere];
+                            const order = item.tabOrder ?? [];
+                            setTabOrder(order);
+                            setIsApiOnly(!!(item as any).apiOnly);
+                            const itemTitle = (item as any).title || item.prompt;
+                            setAiPrompt(itemTitle);
+                            if ((item as any).apiOnly) {
+                                setP2Tab(order[0] ?? 'stegvisning');
                                 setStep(2);
                             } else {
                                 setQuery(item.sql);
+                                setResult(null);
+                                setP2Tab(order[0] ?? 'table');
                                 shouldAutoExecuteRef.current = true;
                                 setStep(2);
                             }

@@ -4,10 +4,12 @@ import PinnedWidget from './PinnedWidget';
 export interface PinnedItem {
     id: string;
     customWidget: {
+        id?: string;
         sql: string;
         chartType: string;
         result: any;
         size: { cols: number; rows: number };
+        title: string;
     };
     colSpan: number;
     rowSpan: number;
@@ -24,18 +26,6 @@ export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridP
     const [overId, setOverId] = useState<string | null>(null);
     const [overDelete, setOverDelete] = useState(false);
 
-    const handleDrop = (targetId: string) => {
-        if (dragId && dragId !== targetId) onReorder(dragId, targetId);
-        setDragId(null);
-        setOverId(null);
-    };
-
-    const handleDeleteDrop = () => {
-        if (dragId) onDelete(dragId);
-        setDragId(null);
-        setOverDelete(false);
-    };
-
     if (widgets.length === 0) return null;
 
     return (
@@ -48,16 +38,16 @@ export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridP
                         <div
                             key={w.id}
                             draggable
-                            onDragStart={() => setDragId(w.id)}
+                            onDragStart={(e) => { e.dataTransfer.setData('text/plain', w.id); e.dataTransfer.effectAllowed = 'move'; setDragId(w.id); }}
                             onDragEnd={() => { setDragId(null); setOverId(null); setOverDelete(false); }}
                             onDragEnter={(e) => { e.preventDefault(); if (dragId !== w.id) setOverId(w.id); }}
                             onDragOver={(e) => e.preventDefault()}
                             onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOverId(prev => prev === w.id ? null : prev); }}
-                            onDrop={(e) => { e.preventDefault(); handleDrop(w.id); }}
+                            onDrop={(e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id && id !== w.id) { onReorder(id, w.id); } setDragId(null); setOverId(null); }}
                             style={{
                                 gridColumn: `span ${w.colSpan}`,
                                 gridRow: `span ${w.rowSpan}`,
-                                aspectRatio: '5/4',
+                                aspectRatio: `${5 * w.colSpan}/${4 * w.rowSpan}`,
                                 position: 'relative',
                                 overflow: 'hidden',
                                 border: '1px solid #e0e0e0',
@@ -70,7 +60,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridP
                             {isOver && (
                                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)', zIndex: 10, pointerEvents: 'none' }} />
                             )}
-                            <PinnedWidget result={w.customWidget.result} chartType={w.customWidget.chartType} />
+                            <PinnedWidget result={w.customWidget.result} chartType={w.customWidget.chartType} colSpan={w.colSpan} rowSpan={w.rowSpan} title={w.customWidget.title} />
                         </div>
                     );
                 })}
@@ -83,7 +73,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridP
                         onDragEnter={(e) => { e.preventDefault(); setOverDelete(true); }}
                         onDragOver={(e) => e.preventDefault()}
                         onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOverDelete(false); }}
-                        onDrop={(e) => { e.preventDefault(); handleDeleteDrop(); }}
+                            onDrop={(e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) { onDelete(id); } setDragId(null); setOverDelete(false); }}
                         style={{
                             pointerEvents: 'all',
                             width: 56,

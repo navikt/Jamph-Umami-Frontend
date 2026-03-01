@@ -1,4 +1,5 @@
 import UmamiJourneyView from '../analysis/journey/UmamiJourneyView';
+import '../../styles/charts.css';
 
 interface Props {
     result: any;
@@ -12,9 +13,9 @@ export default function DashboardJourney({ result, title = 'Sideflyt', journeyDi
     const links = result?.links;
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#fff' }}>
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid #e5e7eb', background: '#f9fafb', flexShrink: 0 }}>
-                <span style={{ fontWeight: 600, fontSize: 13, color: '#111827' }}>{title}</span>
+        <div className="widget-card">
+            <div className="widget-header">
+                <span className="widget-title">{title}</span>
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
                 {!nodes || !links

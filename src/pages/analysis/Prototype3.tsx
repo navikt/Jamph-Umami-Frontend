@@ -76,7 +76,7 @@ const Prototype3 = () => {
     const [tempMetricType, setTempMetricType] = useState<'visitors' | 'pageviews' | 'proportion'>(metricTypeFromUrl || 'visitors');
     const [customStartDate, setCustomStartDate] = useState<Date | undefined>(initialDateState.startDate);
     const [customEndDate, setCustomEndDate] = useState<Date | undefined>(initialDateState.endDate);
-    const [customWidgets, setCustomWidgets] = useState<Array<{ id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number } }>>([]);
+    const [customWidgets, setCustomWidgets] = useState<Array<{ id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string }>>([]);
     const [widgetOrder, setWidgetOrder] = useState<string[]>([]);
 
     const [activeFilters, setActiveFilters] = useState({
@@ -132,7 +132,7 @@ const Prototype3 = () => {
                     setDomainResolutionError(`Fant ingen nettside for domenet "${domainFromUrl}"`);
                 }
             } catch {
-                setDomainResolutionError('Kunne ikke slÃ¥ opp domenet');
+                setDomainResolutionError('Kunne ikke slå opp domenet');
             } finally {
                 setIsResolvingDomain(false);
             }
@@ -226,9 +226,9 @@ const Prototype3 = () => {
 
     // Build the ordered widget list for PinnedGrid
     const customWidgetMap = new Map(customWidgets.map(cw => [cw.id, cw]));
-    const pinnedWidgets: PinnedItem[] = widgetOrder
+    const pinnedWidgets = widgetOrder
         .map(id => { const cw = customWidgetMap.get(id); return cw ? { id, customWidget: cw, colSpan: cw.size?.cols ?? 1, rowSpan: cw.size?.rows ?? 1 } : null; })
-        .filter((w): w is PinnedItem => w !== null);
+        .filter(w => w !== null) as PinnedItem[];
 
     const handleReorder = (fromId: string, toId: string) => {
         setWidgetOrder(prev => {
@@ -247,7 +247,7 @@ const Prototype3 = () => {
 
     return (
         <DashboardLayout
-            title={`Prototype 3 â€” ${dashboard.title}`}
+            title={`Prototype 3 – ${dashboard.title}`}
             description={dashboard.description}
             filters={
                 <FilterBar
@@ -276,12 +276,12 @@ const Prototype3 = () => {
                 </div>
             ) : !effectiveWebsiteId ? (
                 <div className="w-fit">
-                    <Alert variant="info" size="small">Legg til URL-sti og trykk Oppdater for Ã¥ vise statistikk.</Alert>
+                    <Alert variant="info" size="small">Legg til URL-sti og trykk Oppdater for å vise statistikk.</Alert>
                 </div>
             ) : !requiredFiltersAreSatisfied ? (
                 <div className="w-fit">
                     <Alert variant="info" size="small">
-                        {dashboard.customFilterRequiredMessage || "Velg nÃ¸dvendige filtre for Ã¥ vise data."}
+                        {dashboard.customFilterRequiredMessage || "Velg nødvendige filtre for å vise data."}
                     </Alert>
                 </div>
             ) : (
@@ -291,7 +291,7 @@ const Prototype3 = () => {
                         onReorder={handleReorder}
                         onDelete={handleDeleteWidget}
                     />
-                    {/* AI-bygger â€” full width, below the pinned grid */}
+                    {/* AI-bygger – full width, below the pinned grid */}
                     <div style={{ border: '1px solid #e0e0e0', aspectRatio: '5/4', overflow: 'hidden', position: 'relative' }}>
                         <AiByggerPanel
                             websiteId={effectiveWebsiteId}
@@ -299,9 +299,9 @@ const Prototype3 = () => {
                             pathOperator={activeFilters.pathOperator || 'starts-with'}
                             startDate={activeFilters.customStartDate}
                             endDate={activeFilters.customEndDate}
-                            onAddWidget={(sql, chartType, result, size) => {
+                            onAddWidget={(sql, chartType, result, size, title) => {
                                 const id = crypto.randomUUID();
-                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size }]);
+                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '' }]);
                                 setWidgetOrder(prev => [...prev, id]);
                             }}
                         />
