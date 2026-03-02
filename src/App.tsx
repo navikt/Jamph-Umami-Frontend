@@ -29,7 +29,7 @@ const ScrollToTopWrapper = () => {
 const PageLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isHome = location.pathname === "/";
-  const isBare = location.pathname === "/ai-bygger";
+  const isBare = location.pathname === "/ai-bygger" || location.pathname === "/widget";
 
   if (isBare) {
     return <>{children}</>;
@@ -48,7 +48,7 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
 
 const AppShell = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const isBare = location.pathname === "/ai-bygger";
+  const isBare = location.pathname === "/ai-bygger" || location.pathname === "/widget";
 
   if (isBare) {
     return <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>{children}</div>;
@@ -65,7 +65,7 @@ const AppShell = ({ children }: { children: React.ReactNode }) => {
 
 const FooterWrapper = () => {
   const location = useLocation();
-  if (location.pathname === "/ai-bygger") return null;
+  if (location.pathname === '/ai-bygger' || location.pathname === '/widget') return null;
   return <Footer />;
 };
 

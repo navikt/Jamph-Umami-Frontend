@@ -2,12 +2,12 @@
 // as a standalone page (AiBygger.tsx wraps this with URL-param context).
 import { useState, useEffect, useRef } from 'react';
 import ResultsPanel from '../chartbuilder/results/ResultsPanel';
-import ShareResultsModal from '../chartbuilder/results/ShareResultsModal';
+import ShareWidgetModal from './ShareWidgetModal';
 import DownloadResultsModal from '../chartbuilder/results/DownloadResultsModal';
-import { Button, Modal } from '@navikt/ds-react';
+import { Button, Modal, Alert } from '@navikt/ds-react';
 import Editor from '@monaco-editor/react';
 import * as sqlFormatter from 'sql-formatter';
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useChartDataPrep } from '../../lib/useChartDataPrep';
 import UmamiJourneyView from './journey/UmamiJourneyView';
 import DashboardStatCards from '../dashboard/DashboardStatCards';
@@ -84,16 +84,20 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const [result, setResult] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [shareModalOpen, setShareModalOpen] = useState(false);
+    const [shareWidgetOpen, setShareWidgetOpen] = useState(false);
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [pendingAdd, setPendingAdd] = useState<{ sql: string; chartType: string; result: any; title: string } | null>(null);
     const [tidligereOpen, setTidligereOpen] = useState(false);
     const [selectedTidligere, setSelectedTidligere] = useState<number | null>(null);
-    const [metabaseCopySuccess, setMetabaseCopySuccess] = useState(false);
     const [p2Tab, setP2Tab] = useState('table');
     const [showMoreTabs, setShowMoreTabs] = useState(false);
-    const [shareSuccess, setShareSuccess] = useState(false);
     const [formatSuccess, setFormatSuccess] = useState(false);
+    const [metabaseCopySuccess, setMetabaseCopySuccess] = useState(false);
+    const [validateError, setValidateError] = useState<string | null>(null);
+    const [showValidation, setShowValidation] = useState(false);
+    const [estimate, setEstimate] = useState<any>(null);
+    const [estimating, setEstimating] = useState(false);
+    const [showEstimate, setShowEstimate] = useState(false);
     const shouldAutoExecuteRef = useRef(false);
     const [journeyData, setJourneyData] = useState<{ nodes: any[]; links: any[] } | null>(null);
     const [journeyLoading, setJourneyLoading] = useState(false);
@@ -463,18 +467,55 @@ LIMIT 25;`,
         }
     };
 
+    const validateSQL = () => {
+        if (!query.trim()) {
+            setValidateError('SQL kan ikke være tom.');
+            setShowValidation(true);
+            return;
+        }
+        const valid = /\b(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|DROP|ALTER)\b/i.test(query);
+        if (!valid) {
+            setValidateError('SQL må inneholde en gyldig kommando (f.eks. SELECT, WITH, ...).');
+            setShowValidation(true);
+            return;
+        }
+        try {
+            sqlFormatter.format(query);
+            setValidateError('SQL er gyldig!');
+        } catch (e: any) {
+            setValidateError('Ugyldig SQL: ' + (e.message || 'Syntaksfeil'));
+        }
+        setShowValidation(true);
+    };
+
+    const estimateCost = async () => {
+        setEstimating(true);
+        setEstimate(null);
+        setShowEstimate(false);
+        try {
+            const response = await fetch('/api/bigquery/estimate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, analysisType: 'Prototype3' }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Estimation failed');
+            setEstimate(data);
+            setShowEstimate(true);
+        } catch (err: any) {
+            setEstimate({ error: err.message || 'Kunne ikke estimere kostnad' });
+            setShowEstimate(true);
+        } finally {
+            setEstimating(false);
+        }
+    };
+
     const formatSQL = () => {
         try {
             setQuery(sqlFormatter.format(query, { language: 'bigquery', tabWidth: 2, keywordCase: 'upper' }));
             setFormatSuccess(true);
             setTimeout(() => setFormatSuccess(false), 2000);
         } catch { /* ignore */ }
-    };
-
-    const shareQuery = () => {
-        navigator.clipboard.writeText(`${globalThis.location.origin}/ai-bygger?sql=${encodeURIComponent(query)}`);
-        setShareSuccess(true);
-        setTimeout(() => setShareSuccess(false), 2000);
     };
 
     const [journeyError, setJourneyError] = useState<string | null>(null);
@@ -699,14 +740,6 @@ FROM pv
 ORDER BY term`;
     };
 
-    const copyForMetabase = async () => {
-        try {
-            await navigator.clipboard.writeText(query);
-            setMetabaseCopySuccess(true);
-            setTimeout(() => setMetabaseCopySuccess(false), 2000);
-        } catch { /* ignore */ }
-    };
-
     const { prepareLineChartData, prepareBarChartData, preparePieChartData } = useChartDataPrep(result);
 
     return (
@@ -826,11 +859,24 @@ ORDER BY term`;
                                     + Legg til på dashboard
                                 </Button>
                             )}
-                            <Button variant="secondary" size="small" onClick={() => setShareModalOpen(true)}>Del</Button>
+                            <Button variant="secondary" size="small" onClick={() => setShareWidgetOpen(true)}>Del</Button>
                             <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />} onClick={() => setStep(3)}>Avansert</Button>
                         </div>
                     </div>
-                    {query && <ShareResultsModal sql={query} open={shareModalOpen} onClose={() => setShareModalOpen(false)} />}
+                    {shareWidgetOpen && <ShareWidgetModal
+                        open={shareWidgetOpen}
+                        onClose={() => setShareWidgetOpen(false)}
+                        sql={query}
+                        chartType={p2Tab}
+                        defaultTitle={aiPrompt}
+                        sizes={WIDGET_SIZES[p2Tab] ?? [{ cols: 1, rows: 1, name: 'Standard' }]}
+                        result={
+                            p2Tab === 'stegvisning' ? journeyData
+                            : p2Tab === 'kiforklaring' ? { text: currentExplanation ?? '' }
+                            : p2Tab === 'regresjon' ? { rows: result?.data, r2: result?.data?.[0]?.r2, rmse: result?.data?.[0]?.rmse, n: result?.data?.[0]?.n, title: regressionTitle }
+                            : result
+                        }
+                    />}
                     <DownloadResultsModal
                         result={result}
                         open={downloadModalOpen}
@@ -871,7 +917,7 @@ ORDER BY term`;
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center' }}>
                         <h2 className="text-lg font-semibold text-gray-800">Avansert spørring</h2>
                     </div>
-                    <div style={{ height: '80%', overflow: 'auto' }}>
+                    <div style={{ height: '80%', overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
                         {isApiOnly ? (
                             <div style={{ padding: '16px' }}>
                                 <div className="navds-alert navds-alert--info navds-alert--medium" role="alert">
@@ -879,7 +925,7 @@ ORDER BY term`;
                                 </div>
                             </div>
                         ) : (
-                        <div className="border rounded overflow-hidden" style={{ height: '100%' }}>
+                        <div className="border rounded overflow-hidden" style={{ flex: 1, minHeight: 0 }}>
                             <Editor
                                 height="100%" defaultLanguage="sql"
                                 value={p2Tab === 'stegvisning' ? buildJourneySQL() : p2Tab === 'regresjon' ? buildRegressionSQL() : query}
@@ -889,13 +935,47 @@ ORDER BY term`;
                             />
                         </div>
                         )}
+                        {showValidation && validateError && (
+                            <div className={`relative rounded px-3 py-2 mt-1 text-sm flex-shrink-0 ${validateError === 'SQL er gyldig!' ? 'bg-green-100 border border-green-400 text-green-800' : 'bg-red-100 border border-red-400 text-red-800'}`}>
+                                <span>{validateError}</span>
+                                <button type="button" aria-label="Lukk" onClick={() => setShowValidation(false)} className="absolute right-2 top-2 font-bold cursor-pointer">&times;</button>
+                            </div>
+                        )}
+                        {showEstimate && estimate && (
+                            <div className="flex-shrink-0 mt-1">
+                                {estimate.error ? (
+                                    <Alert variant="error" size="small">{estimate.error}</Alert>
+                                ) : (
+                                    <Alert variant={Number.parseFloat(estimate.totalBytesProcessedGB) >= 100 ? 'warning' : 'info'} size="small" className="relative">
+                                        <button type="button" aria-label="Lukk" onClick={() => setShowEstimate(false)} className="absolute right-2 top-2 font-bold cursor-pointer">&times;</button>
+                                        <div className="text-sm space-y-1">
+                                            <div><strong>Data:</strong> {estimate.totalBytesProcessedGB} GB</div>
+                                            {Number.parseFloat(estimate.estimatedCostUSD) > 0 && <div><strong>Kostnad:</strong> ${estimate.estimatedCostUSD} USD</div>}
+                                            {estimate.cacheHit && <div className="text-green-700">✓ Cached (no cost)</div>}
+                                        </div>
+                                    </Alert>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Button variant="secondary" size="small" icon={<ChevronLeft size={16} />} onClick={() => { shouldAutoExecuteRef.current = true; setStep(2); }}>Til resultater</Button>
                         <Button size="small" variant="secondary" onClick={formatSQL}>{formatSuccess ? '✓ Formatert' : 'Formater'}</Button>
+                        <Button size="small" variant="secondary" onClick={validateSQL}>Valider</Button>
+                        <Button size="small" variant="secondary" loading={estimating} onClick={estimateCost}>Estimer kostnad</Button>
                         <Button size="small" variant="secondary">Forklar SQL</Button>
-                        <Button size="small" variant="secondary" onClick={shareQuery}>{shareSuccess ? '✓ Kopiert' : 'Del kode'}</Button>
-                        <Button variant="secondary" size="small" icon={metabaseCopySuccess ? <Check size={16} /> : undefined} onClick={copyForMetabase}>
+                        <Button
+                            size="small"
+                            variant="secondary"
+                            icon={metabaseCopySuccess ? <Check size={16} /> : undefined}
+                            onClick={async () => {
+                                try {
+                                    await navigator.clipboard.writeText(query);
+                                    setMetabaseCopySuccess(true);
+                                    setTimeout(() => setMetabaseCopySuccess(false), 2000);
+                                } catch { /* ignore */ }
+                            }}
+                        >
                             {metabaseCopySuccess ? 'Kopiert!' : 'Kopier for Metabase'}
                         </Button>
                     </div>

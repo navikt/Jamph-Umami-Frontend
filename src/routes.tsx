@@ -16,6 +16,7 @@ import Prototype2 from "./pages/analysis/Prototype2.tsx";
 import Prototype3 from "./pages/analysis/Prototype3.tsx";
 import AiBygger from "./pages/analysis/AiBygger.tsx";
 import Grafdeling from "./pages/analysis/Grafdeling.tsx";
+import WidgetVisning from "./pages/analysis/WidgetVisning.tsx";
 import UserJourney from "./pages/analysis/UserJourney.tsx";
 import Funnel from "./pages/analysis/Funnel.tsx";
 import Retention from "./pages/analysis/Retention.tsx";
@@ -53,6 +54,7 @@ const routes = [
 
     { path: "/sql", component: <SqlEditor /> },
     { path: "/grafdeling", component: <Grafdeling /> },
+    { path: "/widget", component: <WidgetVisning /> },
     { path: "/brukerreiser", component: <UserJourney /> },
     { path: "/hendelsesreiser", component: <EventJourney /> },
     { path: "/trakt", component: <Funnel /> },
