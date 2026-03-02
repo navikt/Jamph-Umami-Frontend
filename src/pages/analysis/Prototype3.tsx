@@ -1,12 +1,13 @@
 ﻿import { Alert } from "@navikt/ds-react";
 import { useSearchParams } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { getDashboard } from "../../data/dashboard";
 import { normalizeUrlToPath } from "../../lib/utils";
 import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
 import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
 import FilterBar from "../../components/dashboard/FilterBar";
+import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
 
 const AKSEL_WEBSITE_ID = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1';
 const DEFAULT_URL = 'https://aksel.nav.no/';
@@ -76,142 +77,18 @@ const Prototype3 = () => {
     const [tempMetricType, setTempMetricType] = useState<'visitors' | 'pageviews' | 'proportion'>(metricTypeFromUrl || 'visitors');
     const [customStartDate, setCustomStartDate] = useState<Date | undefined>(initialDateState.startDate);
     const [customEndDate, setCustomEndDate] = useState<Date | undefined>(initialDateState.endDate);
-    const DEFAULT_WIDGETS: Array<{ id: string; sql: string; chartType: string; result: null; size: { cols: number; rows: number }; title: string }> = [
-        {
-            id: 'default-1',
-            chartType: 'statcards',
-            size: { cols: 2, rows: 1 },
-            title: 'Nøkkeltall – aksel.nav.no 2025',
-            result: null,
-            sql: `WITH sessions AS (
-  SELECT session_id, COUNT(*) AS page_count, COUNTIF(event_type = 2) AS event_count
-  FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-  WHERE event_type IN (1, 2) AND website_id = '${AKSEL_WEBSITE_ID}'
-    AND EXTRACT(YEAR FROM created_at) = 2025
-  GROUP BY session_id
-)
-SELECT 'Unike besøkende' AS kategori, COUNT(*) AS sesjoner FROM sessions
-UNION ALL SELECT 'Utførte handlinger', COUNTIF(event_count > 0) FROM sessions
-UNION ALL SELECT 'Navigering uten handling', COUNTIF(event_count = 0 AND page_count > 1) FROM sessions
-UNION ALL SELECT 'Forlot nettstedet', COUNTIF(page_count = 1 AND event_count = 0) FROM sessions;`,
-        },
-        {
-            id: 'default-2',
-            chartType: 'areachart',
-            size: { cols: 2, rows: 1 },
-            title: 'Daglige sidevisninger 2025',
-            result: null,
-            sql: `SELECT FORMAT_TIMESTAMP('%Y-%m-%d', created_at) AS dato, COUNT(*) AS sidevisninger
-FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-WHERE event_type = 1 AND website_id = '${AKSEL_WEBSITE_ID}'
-  AND EXTRACT(YEAR FROM created_at) = 2025
-GROUP BY dato ORDER BY dato ASC;`,
-        },
-        {
-            id: 'default-3',
-            chartType: 'table',
-            size: { cols: 2, rows: 1 },
-            title: 'Handlinger på aksel.nav.no',
-            result: null,
-            sql: `WITH sessions_on_page AS (
-  SELECT DISTINCT session_id
-  FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-  WHERE event_type = 2 AND website_id = '${AKSEL_WEBSITE_ID}'
-    AND EXTRACT(YEAR FROM created_at) = 2025
-),
-events_labeled AS (
-  SELECT e.session_id, e.event_id, e.created_at,
-    CASE WHEN e.event_name = 'navigere' THEN
-      CONCAT(COALESCE(MAX(CASE WHEN p.data_key = 'kilde' THEN p.string_value END), '?'), ' → ',
-             COALESCE(MAX(CASE WHEN p.data_key = 'url' THEN p.string_value END), '?'))
-    ELSE e.event_name END AS handling
-  FROM sessions_on_page s
-  JOIN \`fagtorsdag-prod-81a6.umami_student.event\` e
-    ON s.session_id = e.session_id AND e.website_id = '${AKSEL_WEBSITE_ID}' AND e.event_type = 2
-    AND EXTRACT(YEAR FROM e.created_at) = 2025
-  LEFT JOIN \`fagtorsdag-prod-81a6.umami_student.event_data\` d
-    ON e.event_id = d.website_event_id AND e.website_id = d.website_id AND e.created_at = d.created_at
-  LEFT JOIN UNNEST(d.event_parameters) AS p
-  GROUP BY e.session_id, e.event_id, e.event_name, e.created_at
-),
-events_numbered AS (
-  SELECT session_id, handling,
-    ROW_NUMBER() OVER (PARTITION BY session_id ORDER BY created_at) AS steg_num
-  FROM events_labeled
-),
-total AS (SELECT COUNT(*) AS n FROM sessions_on_page),
-pivoted AS (
-  SELECT session_id,
-    MAX(CASE WHEN steg_num = 1 THEN handling END) AS steg_1,
-    MAX(CASE WHEN steg_num = 2 THEN handling END) AS steg_2,
-    MAX(CASE WHEN steg_num = 3 THEN handling END) AS steg_3,
-    MAX(CASE WHEN steg_num = 4 THEN handling END) AS steg_4,
-    MAX(CASE WHEN steg_num = 5 THEN handling END) AS steg_5
-  FROM events_numbered GROUP BY session_id
-)
-SELECT COUNT(*) AS antall,
-  CONCAT(ROUND(COUNT(*) * 100.0 / MAX(total.n), 1), '%') AS andel,
-  COALESCE(steg_1, '(ingen hendelser)') AS steg_1,
-  COALESCE(steg_2, '-') AS steg_2, COALESCE(steg_3, '-') AS steg_3,
-  COALESCE(steg_4, '-') AS steg_4, COALESCE(steg_5, '-') AS steg_5
-FROM pivoted, total
-GROUP BY steg_1, steg_2, steg_3, steg_4, steg_5
-ORDER BY antall DESC LIMIT 20;`,
-        },
-        {
-            id: 'default-4',
-            chartType: 'barchart',
-            size: { cols: 2, rows: 1 },
-            title: 'Sidevisninger per måned 2025',
-            result: null,
-            sql: `SELECT EXTRACT(MONTH FROM created_at) AS maaned, COUNT(*) AS sidevisninger
-FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-WHERE event_type = 1 AND website_id = '${AKSEL_WEBSITE_ID}'
-  AND EXTRACT(YEAR FROM created_at) = 2025
-GROUP BY maaned ORDER BY maaned ASC;`,
-        },
-        {
-            id: 'default-5',
-            chartType: 'table',
-            size: { cols: 1, rows: 1 },
-            title: 'Topp 12 undersider 2025',
-            result: null,
-            sql: `SELECT url_path AS side, COUNT(*) AS sidevisninger
-FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-WHERE event_type = 1 AND website_id = '${AKSEL_WEBSITE_ID}'
-  AND EXTRACT(YEAR FROM created_at) = 2025
-GROUP BY side ORDER BY sidevisninger DESC LIMIT 12;`,
-        },
-        {
-            id: 'default-7',
-            chartType: 'piechart',
-            size: { cols: 1, rows: 2 },
-            title: 'Trafikkilder 2025',
-            result: null,
-            sql: `SELECT COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,
-  COUNT(*) AS sidevisninger
-FROM \`fagtorsdag-prod-81a6.umami_student.event\`
-WHERE event_type = 1 AND website_id = '${AKSEL_WEBSITE_ID}'
-  AND EXTRACT(YEAR FROM created_at) = 2025
-GROUP BY kilde ORDER BY sidevisninger DESC LIMIT 10;`,
-        },
-        {
-            id: 'default-6',
-            chartType: 'barchart',
-            size: { cols: 1, rows: 1 },
-            title: 'Operativsystem 2025',
-            result: null,
-            sql: `SELECT COALESCE(NULLIF(s.os, ''), '(ukjent)') AS operativsystem,
-  COUNT(DISTINCT e.session_id) AS unike_besokende
-FROM \`fagtorsdag-prod-81a6.umami_student.event\` e
-LEFT JOIN \`fagtorsdag-prod-81a6.umami_student.session\` s ON e.session_id = s.session_id
-WHERE e.event_type = 1 AND e.website_id = '${AKSEL_WEBSITE_ID}'
-  AND EXTRACT(YEAR FROM e.created_at) = 2025
-GROUP BY operativsystem ORDER BY unike_besokende DESC LIMIT 8;`,
-        },
-    ];
+    const importInputRef = useRef<HTMLInputElement>(null);
 
-    const [customWidgets, setCustomWidgets] = useState<Array<{ id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string }>>(DEFAULT_WIDGETS);
+    type WidgetEntry = { id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string; aiPrompt?: string };
+
+    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => ({
+        ...w,
+        result: null,
+    }));
+
+
+
+    const [customWidgets, setCustomWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
     const [widgetOrder, setWidgetOrder] = useState<string[]>(DEFAULT_WIDGETS.map(w => w.id));
 
     const [activeFilters, setActiveFilters] = useState({
@@ -386,6 +263,57 @@ GROUP BY operativsystem ORDER BY unike_besokende DESC LIMIT 8;`,
         setWidgetOrder(prev => prev.filter(prevId => prevId !== id));
     };
 
+    const handleExport = () => {
+        const exportData = {
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            widgets: widgetOrder
+                .map(id => customWidgets.find(w => w.id === id))
+                .filter(Boolean)
+                .map(w => ({
+                    id: w!.id,
+                    title: w!.title,
+                    aiPrompt: w!.aiPrompt ?? '',
+                    chartType: w!.chartType,
+                    size: w!.size,
+                    sql: w!.sql,
+                })),
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dashboard-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        file.text().then((text) => {
+            try {
+                const parsed = JSON.parse(text);
+                if (!Array.isArray(parsed?.widgets)) throw new Error('Ugyldig format');
+                const imported: WidgetEntry[] = parsed.widgets.map((w: any) => ({
+                    id: w.id ?? crypto.randomUUID(),
+                    title: w.title ?? '',
+                    aiPrompt: w.aiPrompt ?? '',
+                    chartType: w.chartType ?? 'table',
+                    size: w.size ?? { cols: 1, rows: 1 },
+                    sql: w.sql ?? '',
+                    result: null,
+                }));
+                setCustomWidgets(imported);
+                setWidgetOrder(imported.map(w => w.id));
+            } catch {
+                alert('Kunne ikke lese filen. Sjekk at det er en gyldig dashboard-JSON.');
+            }
+        });
+        // reset so same file can be re-imported
+        e.target.value = '';
+    };
+
     return (
         <DashboardLayout
             title={`Prototype 3 – ${dashboard.title}`}
@@ -408,10 +336,20 @@ GROUP BY operativsystem ORDER BY unike_besokende DESC LIMIT 8;`,
                     hasChanges={hasChanges}
                     onUpdate={handleUpdate}
                     onUrlResolved={handleUrlResolved}
+                    onExport={handleExport}
+                    onImport={() => importInputRef.current?.click()}
                 />
             }
             hideHeader
         >
+            <input
+                ref={importInputRef}
+                type="file"
+                accept=".json,application/json"
+                style={{ display: 'none' }}
+                onChange={handleImportFile}
+            />
+
             {isResolvingDomain ? null : domainResolutionError ? (
                 <div className="p-8 col-span-full">
                     <Alert variant="error" size="small">{domainResolutionError}</Alert>
@@ -441,9 +379,9 @@ GROUP BY operativsystem ORDER BY unike_besokende DESC LIMIT 8;`,
                             pathOperator={activeFilters.pathOperator || 'starts-with'}
                             startDate={activeFilters.customStartDate}
                             endDate={activeFilters.customEndDate}
-                            onAddWidget={(sql, chartType, result, size, title) => {
+                            onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
                                 const id = crypto.randomUUID();
-                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '' }]);
+                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }]);
                                 setWidgetOrder(prev => [...prev, id]);
                             }}
                         />

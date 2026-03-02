@@ -38,6 +38,9 @@ export interface FilterBarProps {
     hasChanges: boolean;
     onUpdate: () => void;
     onUrlResolved?: (websiteId: string, domain: string, name: string, pathname: string, pathOperator: string) => void;
+    // export / import
+    onExport?: () => void;
+    onImport?: () => void;
 }
 
 export default function FilterBar({
@@ -57,6 +60,8 @@ export default function FilterBar({
     hasChanges,
     onUpdate,
     onUrlResolved,
+    onExport,
+    onImport,
 }: FilterBarProps) {
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const dateModalRef = useRef<HTMLDialogElement>(null);
@@ -84,7 +89,7 @@ export default function FilterBar({
             ))}
 
             {!dashboard.hiddenFilters?.dateRange && (
-                <div className="w-full sm:w-auto min-w-[160px]">
+                <div className="w-full sm:w-auto min-w-[128px]">
                     <Select label="Type periode" size="small" value="maaned" onChange={() => {}}>
                         <option value="maaned">Måned</option>
                         <option value="uke">Uke</option>
@@ -96,7 +101,7 @@ export default function FilterBar({
             )}
 
             {!dashboard.hiddenFilters?.dateRange && (
-                <div className="w-full sm:w-auto min-w-[200px]">
+                <div className="w-full sm:w-auto min-w-[160px]">
                     <Select
                         label="Periode"
                         size="small"
@@ -157,10 +162,23 @@ export default function FilterBar({
                 </div>
             )}
 
-            <div className="flex items-end pb-[2px]">
-                <Button onClick={onUpdate} size="small" variant={hasChanges ? 'primary' : 'secondary'}>
-                    Oppdater
-                </Button>
+            <div className="flex flex-col">
+                <span className="navds-label navds-form-field__label" style={{ marginBottom: '6px' }}>Dashboard handlinger</span>
+                <div className="flex items-center gap-2">
+                    <Button onClick={onUpdate} size="small" variant={hasChanges ? 'primary' : 'secondary'}>
+                        Oppdater
+                    </Button>
+                    {onExport && (
+                        <Button variant="secondary" size="small" onClick={onExport}>
+                            Eksporter
+                        </Button>
+                    )}
+                    {onImport && (
+                        <Button variant="secondary" size="small" onClick={onImport}>
+                            Importer
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <Modal

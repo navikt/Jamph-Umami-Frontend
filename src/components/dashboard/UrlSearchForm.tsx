@@ -144,7 +144,7 @@ function UrlSearchForm({ children, targetPath = '/dashboard', defaultValue = '',
     return (
         <div>
             <form role="search" onSubmit={handleSubmit}>
-                <div style={{ maxWidth: "600px" }}>
+                <div style={{ width: '100%' }}>
                     <TextField
                         label="Lim inn URL for å se webstatistikk"
                         value={searchQuery}
@@ -152,7 +152,7 @@ function UrlSearchForm({ children, targetPath = '/dashboard', defaultValue = '',
                         onChange={(e) => handleSearchChange(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(e as any); }}
                         placeholder="https://aksel.nav.no/..."
-                        style={{ maxWidth: '600px' }}
+                        style={{ width: '100%' }}
                     />
                     <div className="flex items-center gap-2 mt-2">
                         <span className="text-sm text-gray-600">URL-sti</span>

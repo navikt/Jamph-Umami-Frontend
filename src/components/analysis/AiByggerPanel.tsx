@@ -67,7 +67,7 @@ interface Props {
     readonly pathOperator: string;
     readonly startDate?: Date;
     readonly endDate?: Date;
-    readonly onAddWidget?: (sql: string, chartType: string, result: any, size: { cols: number; rows: number }, title: string) => void;
+    readonly onAddWidget?: (sql: string, chartType: string, result: any, size: { cols: number; rows: number }, title: string, aiPrompt: string) => void;
 }
 
 export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propStartDate, endDate: propEndDate, onAddWidget }: Props) {
@@ -817,7 +817,7 @@ ORDER BY term`;
                                             : p2Tab === 'regresjon' ? { rows: result?.data, r2: result?.data?.[0]?.r2, rmse: result?.data?.[0]?.rmse, n: result?.data?.[0]?.n, title: regressionTitle }
                                             : result;
                                         if (sizes.length === 1) {
-                                            onAddWidget(query, p2Tab, widgetResult, sizes[0], aiPrompt);
+                                            onAddWidget(query, p2Tab, widgetResult, sizes[0], aiPrompt, aiPrompt);
                                         } else {
                                             setPendingAdd({ sql: query, chartType: p2Tab, result: widgetResult, title: aiPrompt });
                                         }
@@ -841,7 +841,7 @@ ORDER BY term`;
                                             key={size.name}
                                             variant="secondary"
                                             onClick={() => {
-                                                onAddWidget(pendingAdd.sql, pendingAdd.chartType, pendingAdd.result, size, pendingAdd.title);
+                                                onAddWidget(pendingAdd.sql, pendingAdd.chartType, pendingAdd.result, size, pendingAdd.title, pendingAdd.title);
                                                 setPendingAdd(null);
                                             }}
                                         >
