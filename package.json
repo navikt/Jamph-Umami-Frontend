@@ -16,6 +16,7 @@
     "@toon-format/toon": "^2.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "html-to-image": "^1.11.13",
     "path": "^0.12.7"
   },
   "devDependencies": {

@@ -823,7 +823,7 @@ ORDER BY term`;
                                         }
                                     }}
                                 >
-                                    + Legg til
+                                    + Legg til på dashboard
                                 </Button>
                             )}
                             <Button variant="secondary" size="small" onClick={() => setShareModalOpen(true)}>Del</Button>
@@ -831,7 +831,17 @@ ORDER BY term`;
                         </div>
                     </div>
                     {query && <ShareResultsModal sql={query} open={shareModalOpen} onClose={() => setShareModalOpen(false)} />}
-                    <DownloadResultsModal result={result} open={downloadModalOpen} onClose={() => setDownloadModalOpen(false)} />
+                    <DownloadResultsModal
+                        result={result}
+                        open={downloadModalOpen}
+                        onClose={() => setDownloadModalOpen(false)}
+                        chartType={p2Tab}
+                        title={aiPrompt}
+                        pngSizes={['linechart','areachart','barchart','piechart'].includes(p2Tab) ? (WIDGET_SIZES[p2Tab] ?? [{ cols: 1, rows: 1, name: 'Standard' }]) : undefined}
+                        prepareLineChartData={prepareLineChartData}
+                        prepareBarChartData={prepareBarChartData}
+                        preparePieChartData={preparePieChartData}
+                    />
                     {pendingAdd && onAddWidget && (
                         <Modal open onClose={() => setPendingAdd(null)} header={{ heading: 'Velg storrelse' }}>
                             <Modal.Body>
@@ -883,6 +893,7 @@ ORDER BY term`;
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Button variant="secondary" size="small" icon={<ChevronLeft size={16} />} onClick={() => { shouldAutoExecuteRef.current = true; setStep(2); }}>Til resultater</Button>
                         <Button size="small" variant="secondary" onClick={formatSQL}>{formatSuccess ? '✓ Formatert' : 'Formater'}</Button>
+                        <Button size="small" variant="secondary">Forklar SQL</Button>
                         <Button size="small" variant="secondary" onClick={shareQuery}>{shareSuccess ? '✓ Kopiert' : 'Del kode'}</Button>
                         <Button variant="secondary" size="small" icon={metabaseCopySuccess ? <Check size={16} /> : undefined} onClick={copyForMetabase}>
                             {metabaseCopySuccess ? 'Kopiert!' : 'Kopier for Metabase'}
