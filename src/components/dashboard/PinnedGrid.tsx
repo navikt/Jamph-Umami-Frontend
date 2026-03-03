@@ -69,18 +69,27 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit }: Pin
                 })}
             </div>
 
-            {/* Delete zone — appears while any widget is being dragged */}
+            {/* Delete zone — fixed to bottom of screen while dragging */}
             {dragId && (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0 8px', pointerEvents: 'none' }}>
+                <div style={{
+                    position: 'fixed',
+                    bottom: 32,
+                    left: 0,
+                    right: 0,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    pointerEvents: 'none',
+                }}>
                     <div
                         onDragEnter={(e) => { e.preventDefault(); setOverDelete(true); }}
                         onDragOver={(e) => e.preventDefault()}
                         onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOverDelete(false); }}
-                            onDrop={(e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) { onDelete(id); } setDragId(null); setOverDelete(false); }}
+                        onDrop={(e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) { onDelete(id); } setDragId(null); setOverDelete(false); }}
                         style={{
                             pointerEvents: 'all',
-                            width: 56,
-                            height: 56,
+                            width: overDelete ? 72 : 56,
+                            height: overDelete ? 72 : 56,
                             borderRadius: '50%',
                             background: overDelete ? '#c0392b' : '#e74c3c',
                             border: `3px solid ${overDelete ? '#922b21' : '#c0392b'}`,
@@ -88,9 +97,8 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit }: Pin
                             alignItems: 'center',
                             justifyContent: 'center',
                             cursor: 'copy',
-                            transform: overDelete ? 'scale(1.18)' : 'scale(1)',
-                            transition: 'transform 0.12s, background 0.12s, border-color 0.12s',
-                            boxShadow: overDelete ? '0 4px 16px rgba(192,57,43,0.5)' : '0 2px 8px rgba(0,0,0,0.2)',
+                            transition: 'width 0.12s, height 0.12s, background 0.12s, border-color 0.12s',
+                            boxShadow: overDelete ? '0 4px 24px rgba(192,57,43,0.6)' : '0 2px 12px rgba(0,0,0,0.25)',
                         }}
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
