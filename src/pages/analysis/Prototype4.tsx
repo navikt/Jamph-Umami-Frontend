@@ -1,403 +1,208 @@
-import { Alert } from "@navikt/ds-react";
-import { useSearchParams } from "react-router-dom";
-import { useState, useEffect, useMemo, useRef } from "react";
-import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import { getDashboard } from "../../data/dashboard";
-import { normalizeUrlToPath } from "../../lib/utils";
-import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
-import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
-import FilterBar from "../../components/dashboard/FilterBar";
-import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
+ï»¿import { useState, useEffect, useRef } from "react";
+import { getPrototype4Examples, EXAMPLE_MOCK_DATA } from "./prototype4Examples";
+import DashboardTable from "../../components/dashboard/DashboardTable";
+import DashboardBarChart from "../../components/dashboard/DashboardBarChart";
+import DashboardLineChart from "../../components/dashboard/DashboardLineChart";
+import DashboardAreaChart from "../../components/dashboard/DashboardAreaChart";
+import DashboardPieChart from "../../components/dashboard/DashboardPieChart";
 
-const AKSEL_WEBSITE_ID = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1';
-const DEFAULT_URL = 'https://aksel.nav.no/';
+type ChatMessage = {
+    id: string;
+    role: "user" | "bot";
+    text: string;
+    chart?: { tabOrder: string[]; data: Record<string, unknown>[]; title: string };
+    explanation?: string;
+};
+
+const WEBSITE_ID = "fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1";
+
+const EXAMPLES = getPrototype4Examples(
+    WEBSITE_ID, "/", "aksel.nav.no", "AND url_path LIKE '/%'", () => ""
+);
+
+const RENDERABLE_TABS = new Set(['linechart', 'areachart', 'barchart', 'piechart', 'table']);
+function bestTab(tabOrder: string[]): string {
+    return tabOrder.find(t => RENDERABLE_TABS.has(t)) ?? 'table';
+}
+
+function ChartRenderer({ tabOrder, data, title }: Readonly<{ tabOrder: string[]; data: Record<string, unknown>[]; title: string }>) {
+    const tab = bestTab(tabOrder);
+    const result = { data };
+    if (tab === 'barchart') return <DashboardBarChart result={result} title={title} />;
+    if (tab === 'linechart') return <DashboardLineChart result={result} title={title} />;
+    if (tab === 'areachart') return <DashboardAreaChart result={result} title={title} />;
+    if (tab === 'piechart') return <DashboardPieChart result={result} title={title} />;
+    return <DashboardTable data={data} title={title} />;
+}
+
+const EXAMPLE_MESSAGES: Record<string, ChatMessage[]> = {};
+EXAMPLES.forEach(ex => {
+    EXAMPLE_MESSAGES[ex.id] = [
+        { id: ex.id + "-u", role: "user", text: ex.userMessage },
+        {
+            id: ex.id + "-b",
+            role: "bot",
+            text: ex.botReply,
+            chart: EXAMPLE_MOCK_DATA[ex.id]
+                ? { tabOrder: ex.tabOrder, data: EXAMPLE_MOCK_DATA[ex.id], title: ex.title }
+                : undefined,
+            explanation: ex.explanation,
+        },
+    ];
+});
+
+const NEW_CHAT_ID = "new";
 
 const Prototype4 = () => {
-    const [searchParams, setSearchParams] = useSearchParams();
-    const websiteId = searchParams.get("websiteId");
-    const domainFromUrl = searchParams.get("domain");
-    const pathsFromUrl = searchParams.getAll("path");
-    const initialPaths = pathsFromUrl.length > 0 ? pathsFromUrl : ['/'];
-    const pathOperator = searchParams.get("pathOperator");
-    const metricTypeFromUrl = (searchParams.get("metrikk") || searchParams.get("metricType")) as 'visitors' | 'pageviews' | 'proportion' | null;
-    const rawDateRangeFromUrl = searchParams.get("periode");
-    const dateRangeFromUrl = rawDateRangeFromUrl === 'this-month' ? 'current_month'
-        : rawDateRangeFromUrl === 'last-month' ? 'last_month'
-        : rawDateRangeFromUrl;
+    const [activeChatId, setActiveChatId] = useState<string>(NEW_CHAT_ID);
+    const [newChatMessages, setNewChatMessages] = useState<ChatMessage[]>([
+        { id: "welcome", role: "bot", text: "Hva kan jeg hjelpe deg med?" }
+    ]);
+    const [inputText, setInputText] = useState("");
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const dashboardId = searchParams.get("visning");
-    const dashboard = getDashboard(dashboardId);
-
-    const [isResolvingDomain, setIsResolvingDomain] = useState(false);
-    const [domainResolutionError, setDomainResolutionError] = useState<string | null>(null);
-    const [hasAutoAppliedFilters, setHasAutoAppliedFilters] = useState(false);
-    const [selectedWebsite, setSelectedWebsite] = useState<any>(null);
-
-    const getInitialCustomFilterValues = (): Record<string, string> => {
-        const values: Record<string, string> = {};
-        dashboard.customFilters?.forEach(filter => {
-            if (filter.urlParam) {
-                const urlSlug = searchParams.get(filter.urlParam);
-                if (urlSlug) {
-                    const option = filter.options.find(opt => opt.slug === urlSlug || opt.value === urlSlug);
-                    values[filter.id] = option?.value || urlSlug;
-                }
-            }
-        });
-        return values;
-    };
-
-    const [customFilterValues, setCustomFilterValues] = useState<Record<string, string>>(getInitialCustomFilterValues);
-    const defaultPathOperator = dashboard.defaultFilterValues?.pathOperator || pathOperator || "starts-with";
-
-    const getStudentDateState = (range: string | null) => {
-        if (range === 'last_month') return { dateRange: 'custom', startDate: new Date(2025, 10, 1), endDate: new Date(2025, 10, 30) };
-        if (range === 'current_month') return { dateRange: 'custom', startDate: new Date(2025, 11, 1), endDate: new Date(2025, 11, 31) };
-        return { dateRange: range || 'current_month', startDate: undefined, endDate: undefined };
-    };
-
-    const initialDateState = getStudentDateState(dateRangeFromUrl || 'last_month');
-
-    const getInitialUrlPaths = (): string[] => {
-        const initialCustomValues = getInitialCustomFilterValues();
-        for (const filter of dashboard.customFilters || []) {
-            if (filter.appliesTo === 'urlPath' && filter.urlParam) {
-                const value = initialCustomValues[filter.id];
-                if (value) return [normalizeUrlToPath(value)];
-            }
-        }
-        return initialPaths.map(p => normalizeUrlToPath(p));
-    };
-
-    const initialUrlPathsFromCustomFilter = getInitialUrlPaths();
-
-    const [tempPathOperator, setTempPathOperator] = useState(defaultPathOperator);
-    const [tempUrlPaths, setTempUrlPaths] = useState<string[]>(initialUrlPathsFromCustomFilter);
-    const [tempDateRange, setTempDateRange] = useState(initialDateState.dateRange);
-    const [tempMetricType, setTempMetricType] = useState<'visitors' | 'pageviews' | 'proportion'>(metricTypeFromUrl || 'visitors');
-    const [customStartDate, setCustomStartDate] = useState<Date | undefined>(initialDateState.startDate);
-    const [customEndDate, setCustomEndDate] = useState<Date | undefined>(initialDateState.endDate);
-    const importInputRef = useRef<HTMLInputElement>(null);
-
-    type WidgetEntry = { id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string; aiPrompt?: string };
-
-    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => ({
-        ...w,
-        result: null,
-    }));
-
-
-
-    const [customWidgets, setCustomWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
-    const [widgetOrder, setWidgetOrder] = useState<string[]>(DEFAULT_WIDGETS.map(w => w.id));
-    const [editingWidget, setEditingWidget] = useState<{ sql: string; chartType: string; title: string; aiPrompt?: string; result?: any } | null>(null);
-    const aiByggerRef = useRef<HTMLDivElement>(null);
-
-    const [activeFilters, setActiveFilters] = useState({
-        pathOperator: defaultPathOperator,
-        urlFilters: initialUrlPathsFromCustomFilter,
-        dateRange: initialDateState.dateRange,
-        customStartDate: initialDateState.startDate,
-        customEndDate: initialDateState.endDate,
-        metricType: (metricTypeFromUrl || 'visitors') as 'visitors' | 'pageviews' | 'proportion',
-    });
-
-    const effectiveWebsiteId = websiteId || AKSEL_WEBSITE_ID;
-
-    const getVisualDateRange = () => {
-        if (tempDateRange === 'custom' && customStartDate && customEndDate) {
-            const isDec2025 = customStartDate.getFullYear() === 2025 && customStartDate.getMonth() === 11 && customStartDate.getDate() === 1
-                && customEndDate.getFullYear() === 2025 && customEndDate.getMonth() === 11 && customEndDate.getDate() === 31;
-            const isNov2025 = customStartDate.getFullYear() === 2025 && customStartDate.getMonth() === 10 && customStartDate.getDate() === 1
-                && customEndDate.getFullYear() === 2025 && customEndDate.getMonth() === 10 && customEndDate.getDate() === 30;
-            if (isDec2025) return 'current_month';
-            if (isNov2025) return 'last_month';
-        }
-        return tempDateRange;
-    };
-
-    const normalizeDomain = (domain: string) => (domain === "www.nav.no" ? domain : domain.replace(/^www\./, ""));
+    const isExample = activeChatId !== NEW_CHAT_ID;
+    const messages = isExample ? (EXAMPLE_MESSAGES[activeChatId] ?? []) : newChatMessages;
 
     useEffect(() => {
-        const resolveDomainToWebsiteId = async () => {
-            if (websiteId || !domainFromUrl) return;
-            setIsResolvingDomain(true);
-            setDomainResolutionError(null);
-            try {
-                const response = await fetch('/api/bigquery/websites');
-                const data = await response.json();
-                const websitesData = data.data || [];
-                const relevantTeams = ['aa113c34-e213-4ed6-a4f0-0aea8a503e6b', 'bceb3300-a2fb-4f73-8cec-7e3673072b30'];
-                const prodWebsites = websitesData.filter((w: any) => relevantTeams.includes(w.teamId));
-                const filteredWebsites = prodWebsites.filter((item: any) => item.domain !== "nav.no");
-                let inputDomain = domainFromUrl === "nav.no" ? "www.nav.no" : domainFromUrl;
-                const normalizedInput = normalizeDomain(inputDomain);
-                const matchedWebsite = filteredWebsites.find((item: any) =>
-                    normalizeDomain(item.domain) === normalizedInput ||
-                    normalizedInput.endsWith(`.${normalizeDomain(item.domain)} `)
-                );
-                if (matchedWebsite) {
-                    const newParams = new URLSearchParams(searchParams);
-                    newParams.set('websiteId', matchedWebsite.id);
-                    newParams.delete('domain');
-                    setSearchParams(newParams, { replace: true });
-                    setSelectedWebsite(matchedWebsite);
-                } else {
-                    setDomainResolutionError(`Fant ingen nettside for domenet "${domainFromUrl}"`);
-                }
-            } catch {
-                setDomainResolutionError('Kunne ikke slå opp domenet');
-            } finally {
-                setIsResolvingDomain(false);
-            }
-        };
-        resolveDomainToWebsiteId();
-    }, [domainFromUrl, websiteId, searchParams, setSearchParams]);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
-    useEffect(() => {
-        if (!hasAutoAppliedFilters && selectedWebsite && initialPaths.length > 0) {
-            const autoDateState = getStudentDateState("current_month");
-            setActiveFilters({
-                pathOperator: pathOperator || "equals",
-                urlFilters: initialPaths.map(p => normalizeUrlToPath(p)),
-                dateRange: autoDateState.dateRange,
-                customStartDate: autoDateState.startDate,
-                customEndDate: autoDateState.endDate,
-                metricType: metricTypeFromUrl || 'visitors',
-            });
-            setHasAutoAppliedFilters(true);
-        }
-    }, [selectedWebsite, initialPaths, pathOperator, hasAutoAppliedFilters, metricTypeFromUrl]);
-
-    const handleUpdate = () => {
-        const url = new URL(window.location.href);
-        if (!dashboard.hiddenFilters?.website && selectedWebsite) {
-            url.searchParams.set('websiteId', selectedWebsite.id);
-            url.searchParams.delete('path');
-            tempUrlPaths.forEach(p => { if (p) url.searchParams.append('path', p); });
-            if (tempPathOperator && tempPathOperator !== "equals") url.searchParams.set('pathOperator', tempPathOperator);
-            else url.searchParams.delete('pathOperator');
-        }
-        const visualRange = getVisualDateRange();
-        if (visualRange !== 'current_month') url.searchParams.set('periode', visualRange);
-        else url.searchParams.delete('periode');
-        if (tempMetricType && tempMetricType !== "visitors") url.searchParams.set('metrikk', tempMetricType);
-        else url.searchParams.delete('metrikk');
-        setSearchParams(url.searchParams);
-        setActiveFilters({
-            pathOperator: tempPathOperator,
-            urlFilters: tempUrlPaths,
-            dateRange: tempDateRange,
-            customStartDate: tempDateRange === 'custom' ? customStartDate : undefined,
-            customEndDate: tempDateRange === 'custom' ? customEndDate : undefined,
-            metricType: tempMetricType,
-        });
+    const handleSendMessage = () => {
+        const text = inputText.trim();
+        if (!text || isExample) return;
+        setInputText("");
+        setNewChatMessages(prev => [...prev, { id: crypto.randomUUID(), role: "user" as const, text }]);
     };
 
-    const handleUrlResolved = (resolvedWebsiteId: string, domain: string, name: string, pathname: string, operator: string) => {
-        setSelectedWebsite({ id: resolvedWebsiteId, domain, name });
-        setTempUrlPaths([pathname]);
-        setTempPathOperator(operator as 'equals' | 'starts-with');
-    };
-
-    const handleCustomFilterChange = (filterId: string, value: string) => {
-        setCustomFilterValues(prev => ({ ...prev, [filterId]: value }));
-        const filterDef = dashboard.customFilters?.find(f => f.id === filterId);
-        if (!filterDef) return;
-        if (filterDef.urlParam) {
-            const url = new URL(window.location.href);
-            if (value) {
-                const urlValue = filterDef.options.find(opt => opt.value === value)?.slug || value;
-                url.searchParams.set(filterDef.urlParam, urlValue);
-            } else {
-                url.searchParams.delete(filterDef.urlParam);
-            }
-            setSearchParams(url.searchParams);
-        }
-        if (filterDef.appliesTo === 'urlPath') {
-            setTempUrlPaths(value ? [value] : []);
-            setTempPathOperator(filterDef.pathOperator ?? defaultPathOperator);
-        }
-    };
-
-    const arraysEqual = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
-    const datesEqual = (a: Date | undefined, b: Date | undefined) => {
-        if (!a && !b) return true;
-        if (!a || !b) return false;
-        return a.getTime() === b.getTime();
-    };
-
-    const hasChanges =
-        tempDateRange !== activeFilters.dateRange ||
-        !arraysEqual(tempUrlPaths, activeFilters.urlFilters) ||
-        tempPathOperator !== activeFilters.pathOperator ||
-        tempMetricType !== activeFilters.metricType ||
-        (!dashboard.hiddenFilters?.website && selectedWebsite && selectedWebsite.id !== websiteId) ||
-        (tempDateRange === 'custom' && (
-            !datesEqual(customStartDate, activeFilters.customStartDate) ||
-            !datesEqual(customEndDate, activeFilters.customEndDate)
-        ));
-
-    const requiredFiltersAreSatisfied = useMemo(() => {
-        if (!dashboard.customFilters) return true;
-        const required = dashboard.customFilters.filter(f => f.required);
-        return required.every(f => f.appliesTo === 'urlPath' ? activeFilters.urlFilters.length > 0 : !!customFilterValues[f.id]);
-    }, [dashboard.customFilters, activeFilters.urlFilters, customFilterValues]);
-
-    // Build the ordered widget list for PinnedGrid
-    const customWidgetMap = new Map(customWidgets.map(cw => [cw.id, cw]));
-    const pinnedWidgets = widgetOrder
-        .map(id => { const cw = customWidgetMap.get(id); return cw ? { id, customWidget: cw, colSpan: cw.size?.cols ?? 1, rowSpan: cw.size?.rows ?? 1 } : null; })
-        .filter(w => w !== null) as PinnedItem[];
-
-    const handleReorder = (fromId: string, toId: string) => {
-        setWidgetOrder(prev => {
-            const arr = [...prev];
-            const from = arr.indexOf(fromId);
-            const to = arr.indexOf(toId);
-            if (from !== -1 && to !== -1) [arr[from], arr[to]] = [arr[to], arr[from]];
-            return arr;
-        });
-    };
-
-    const handleDeleteWidget = (id: string) => {
-        setCustomWidgets(prev => prev.filter(cw => cw.id !== id));
-        setWidgetOrder(prev => prev.filter(prevId => prevId !== id));
-    };
-
-    const handleExport = () => {
-        const exportData = {
-            version: 1,
-            exportedAt: new Date().toISOString(),
-            widgets: widgetOrder
-                .map(id => customWidgets.find(w => w.id === id))
-                .filter(Boolean)
-                .map(w => ({
-                    id: w!.id,
-                    title: w!.title,
-                    aiPrompt: w!.aiPrompt ?? '',
-                    chartType: w!.chartType,
-                    size: w!.size,
-                    sql: w!.sql,
-                })),
-        };
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `dashboard-${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-    };
-
-    const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        file.text().then((text) => {
-            try {
-                const parsed = JSON.parse(text);
-                if (!Array.isArray(parsed?.widgets)) throw new Error('Ugyldig format');
-                const imported: WidgetEntry[] = parsed.widgets.map((w: any) => ({
-                    id: w.id ?? crypto.randomUUID(),
-                    title: w.title ?? '',
-                    aiPrompt: w.aiPrompt ?? '',
-                    chartType: w.chartType ?? 'table',
-                    size: w.size ?? { cols: 1, rows: 1 },
-                    sql: w.sql ?? '',
-                    result: null,
-                }));
-                setCustomWidgets(imported);
-                setWidgetOrder(imported.map(w => w.id));
-            } catch {
-                alert('Kunne ikke lese filen. Sjekk at det er en gyldig dashboard-JSON.');
-            }
-        });
-        // reset so same file can be re-imported
-        e.target.value = '';
+    const handleNewChat = () => {
+        setActiveChatId(NEW_CHAT_ID);
+        setNewChatMessages([{ id: "w-" + crypto.randomUUID(), role: "bot", text: "Hva kan jeg hjelpe deg med?" }]);
     };
 
     return (
-        <DashboardLayout
-            title={`Prototype 4 – ${dashboard.title}`}
-            description={dashboard.description}
-            filters={
-                <FilterBar
-                    dashboard={dashboard}
-                    defaultUrlFormValue={domainFromUrl ? `https://${domainFromUrl}${searchParams.get('path') || '/'}` : DEFAULT_URL}
-                    tempDateRange={tempDateRange}
-                    setTempDateRange={setTempDateRange}
-                    customStartDate={customStartDate}
-                    setCustomStartDate={setCustomStartDate}
-                    customEndDate={customEndDate}
-                    setCustomEndDate={setCustomEndDate}
-                    visualDateRange={getVisualDateRange()}
-                    tempMetricType={tempMetricType}
-                    setTempMetricType={setTempMetricType}
-                    customFilterValues={customFilterValues}
-                    onCustomFilterChange={handleCustomFilterChange}
-                    hasChanges={hasChanges}
-                    onUpdate={handleUpdate}
-                    onUrlResolved={handleUrlResolved}
-                    onExport={handleExport}
-                    onImport={() => importInputRef.current?.click()}
-                />
-            }
-            hideHeader
-        >
-            <input
-                ref={importInputRef}
-                type="file"
-                accept=".json,application/json"
-                style={{ display: 'none' }}
-                onChange={handleImportFile}
-            />
+        <div style={{ display: "flex", height: "calc(100vh - 120px)", minHeight: 500, background: "#fff" }}>
 
-            {isResolvingDomain ? null : domainResolutionError ? (
-                <div className="p-8 col-span-full">
-                    <Alert variant="error" size="small">{domainResolutionError}</Alert>
+            {/* Sidebar */}
+            <div style={{ width: 220, borderRight: "1px solid #e0e0e0", background: "#f7f7f7", display: "flex", flexDirection: "column", flexShrink: 0 }}>
+                <div style={{ padding: "14px 12px 10px", borderBottom: "1px solid #e8e8e8", fontWeight: 600, fontSize: 14 }}>
+                    Chats
                 </div>
-            ) : !effectiveWebsiteId ? (
-                <div className="w-fit">
-                    <Alert variant="info" size="small">Legg til URL-sti og trykk Oppdater for å vise statistikk.</Alert>
+                <div style={{ flex: 1, overflowY: "auto" }}>
+                    {/* Ny samtale */}
+                    <button
+                        onClick={() => setActiveChatId(NEW_CHAT_ID)}
+                        style={{
+                            display: "block", width: "100%", textAlign: "left",
+                            padding: "10px 12px", border: "none",
+                            borderLeft: activeChatId === NEW_CHAT_ID ? "3px solid #0067C5" : "3px solid transparent",
+                            background: activeChatId === NEW_CHAT_ID ? "#e8f0fe" : "transparent",
+                            cursor: "pointer", fontSize: 13,
+                            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                        }}>
+                        Ny samtale
+                    </button>
+                    <div style={{ margin: "6px 12px", borderTop: "1px solid #e0e0e0" }} />
+                    <div style={{ padding: "2px 12px 6px", fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Eksempler
+                    </div>
+                    {EXAMPLES.map(ex => (
+                        <button
+                            key={ex.id}
+                            onClick={() => setActiveChatId(ex.id)}
+                            style={{
+                                display: "block", width: "100%", textAlign: "left",
+                                padding: "9px 12px", border: "none",
+                                borderLeft: activeChatId === ex.id ? "3px solid #0067C5" : "3px solid transparent",
+                                background: activeChatId === ex.id ? "#e8f0fe" : "transparent",
+                                cursor: "pointer", fontSize: 13,
+                                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                            }}>
+                            {ex.title}
+                        </button>
+                    ))}
                 </div>
-            ) : !requiredFiltersAreSatisfied ? (
-                <div className="w-fit">
-                    <Alert variant="info" size="small">
-                        {dashboard.customFilterRequiredMessage || "Velg nødvendige filtre for å vise data."}
-                    </Alert>
+                <div style={{ padding: "10px 12px", borderTop: "1px solid #e0e0e0" }}>
+                    <button
+                        onClick={handleNewChat}
+                        style={{ width: "100%", padding: "7px", border: "1px solid #c0c0c0", borderRadius: 4, background: "#fff", cursor: "pointer", fontSize: 13 }}>
+                        + Ny samtale
+                    </button>
                 </div>
-            ) : (
-                <div>
-                    <PinnedGrid
-                        widgets={pinnedWidgets}
-                        onReorder={handleReorder}
-                        onDelete={handleDeleteWidget}
-                        onEdit={(w) => {
-                            setEditingWidget({ sql: w.customWidget.sql, chartType: w.customWidget.chartType, title: w.customWidget.title, aiPrompt: w.customWidget.aiPrompt, result: w.customWidget.result });
-                            setTimeout(() => aiByggerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+            </div>
+
+            {/* Chat area */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+                    {messages.map(msg => (
+                        <div key={msg.id} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", marginBottom: 16 }}>
+                            <div style={{ maxWidth: msg.chart ? "85%" : "70%" }}>
+                                <div style={{
+                                    padding: "9px 14px",
+                                    borderRadius: msg.role === "user" ? "12px 12px 0 12px" : "0 12px 12px 12px",
+                                    background: msg.role === "user" ? "#0067C5" : "#f0f4ff",
+                                    color: msg.role === "user" ? "#fff" : "#262626",
+                                    fontSize: 14, lineHeight: 1.5,
+                                }}>
+                                    {msg.text}
+                                </div>
+                                {msg.chart && (
+                                    <div style={{ marginTop: 8, height: 320 }}>
+                                        <ChartRenderer
+                                            tabOrder={msg.chart.tabOrder}
+                                            data={msg.chart.data}
+                                            title={msg.chart.title}
+                                        />
+                                    </div>
+                                )}
+                                {msg.explanation && (
+                                    <div style={{
+                                        marginTop: 8, padding: "10px 14px",
+                                        borderRadius: "0 12px 12px 12px",
+                                        background: "#f0f4ff",
+                                        color: "#262626", fontSize: 13, lineHeight: 1.6,
+                                        borderLeft: "3px solid #0067C5",
+                                    }}>
+                                        <span style={{ fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", color: "#0067C5", display: "block", marginBottom: 4 }}>KI-analyse</span>
+                                        {msg.explanation}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                    <div ref={messagesEndRef} />
+                </div>
+                <div style={{ padding: "12px 24px", borderTop: "1px solid #e8e8e8", background: "#fafafa", display: "flex", gap: 8, alignItems: "flex-end" }}>
+                    <textarea
+                        placeholder={isExample ? "Dette er et eksempel - start en ny samtale for Ã¥ skrive" : "Skriv inn her..."}
+                        value={inputText}
+                        disabled={isExample}
+                        onChange={e => setInputText(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                        rows={2}
+                        style={{
+                            flex: 1, padding: "9px 12px", borderRadius: 6, border: "1px solid #c0c0c0",
+                            fontSize: 14, resize: "none", fontFamily: "inherit", outline: "none",
+                            background: isExample ? "#f5f5f5" : "#fff",
+                            color: isExample ? "#aaa" : "#262626",
                         }}
                     />
-                    {/* AI-bygger – full width, below the pinned grid */}
-                    <div ref={aiByggerRef} style={{ border: '1px solid #e0e0e0', aspectRatio: '5/4', overflow: 'hidden', position: 'relative' }}>
-                        <AiByggerPanel
-                            websiteId={effectiveWebsiteId}
-                            path={activeFilters.urlFilters[0] || '/'}
-                            pathOperator={activeFilters.pathOperator || 'starts-with'}
-                            startDate={activeFilters.customStartDate}
-                            endDate={activeFilters.customEndDate}
-                            editWidget={editingWidget}
-                            onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
-                                const id = crypto.randomUUID();
-                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }]);
-                                setWidgetOrder(prev => [...prev, id]);
-                            }}
-                        />
-                    </div>
+                    <button
+                        onClick={handleSendMessage}
+                        disabled={isExample || !inputText.trim()}
+                        style={{
+                            padding: "9px 18px", borderRadius: 6, border: "none",
+                            background: !isExample && inputText.trim() ? "#0067C5" : "#ccc",
+                            color: "#fff",
+                            cursor: !isExample && inputText.trim() ? "pointer" : "default",
+                            fontSize: 14, fontWeight: 500,
+                        }}>
+                        Send
+                    </button>
                 </div>
-            )}
-        </DashboardLayout>
+            </div>
+        </div>
     );
 };
 
 export default Prototype4;
-
