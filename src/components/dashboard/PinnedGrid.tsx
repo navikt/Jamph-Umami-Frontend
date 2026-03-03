@@ -10,6 +10,7 @@ export interface PinnedItem {
         result: any;
         size: { cols: number; rows: number };
         title: string;
+        aiPrompt?: string;
     };
     colSpan: number;
     rowSpan: number;
@@ -19,9 +20,10 @@ interface PinnedGridProps {
     widgets: PinnedItem[];
     onReorder: (fromId: string, toId: string) => void;
     onDelete: (id: string) => void;
+    onEdit?: (widget: PinnedItem) => void;
 }
 
-export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridProps) {
+export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit }: PinnedGridProps) {
     const [dragId, setDragId] = useState<string | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
     const [overDelete, setOverDelete] = useState(false);
@@ -38,6 +40,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete }: PinnedGridP
                         <div
                             key={w.id}
                             draggable
+                            onDoubleClick={() => onEdit?.(w)}
                             onDragStart={(e) => { e.dataTransfer.setData('text/plain', w.id); e.dataTransfer.effectAllowed = 'move'; setDragId(w.id); }}
                             onDragEnd={() => { setDragId(null); setOverId(null); setOverDelete(false); }}
                             onDragEnter={(e) => { e.preventDefault(); if (dragId !== w.id) setOverId(w.id); }}

@@ -68,9 +68,10 @@ interface Props {
     readonly startDate?: Date;
     readonly endDate?: Date;
     readonly onAddWidget?: (sql: string, chartType: string, result: any, size: { cols: number; rows: number }, title: string, aiPrompt: string) => void;
+    readonly editWidget?: { sql: string; chartType: string; title: string; aiPrompt?: string; result?: any } | null;
 }
 
-export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propStartDate, endDate: propEndDate, onAddWidget }: Props) {
+export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propStartDate, endDate: propEndDate, onAddWidget, editWidget }: Props) {
     const pathConditionSQL = pathOperator === 'starts-with'
         ? (path === '/' ? '' : `AND url_path LIKE '${path}%'`)
         : `AND url_path = '${path}'`;
@@ -98,7 +99,25 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const [estimate, setEstimate] = useState<any>(null);
     const [estimating, setEstimating] = useState(false);
     const [showEstimate, setShowEstimate] = useState(false);
+    const [lagEgenSqlOpen, setLagEgenSqlOpen] = useState(false);
+    const [lagEgenSqlTitle, setLagEgenSqlTitle] = useState('');
     const shouldAutoExecuteRef = useRef(false);
+
+    // Load a widget from the dashboard for editing
+    useEffect(() => {
+        if (!editWidget) return;
+        setQuery(editWidget.sql);
+        setP2Tab(editWidget.chartType);
+        setAiPrompt(editWidget.aiPrompt || editWidget.title);
+        if (editWidget.result) {
+            setResult(editWidget.result);
+        } else {
+            // No cached result — auto-execute when step 2 mounts
+            shouldAutoExecuteRef.current = true;
+        }
+        setStep(2);
+    }, [editWidget]);
+
     const [journeyData, setJourneyData] = useState<{ nodes: any[]; links: any[] } | null>(null);
     const [journeyLoading, setJourneyLoading] = useState(false);
     const defaultRegressionTitle = `Lineær regresjon: daglige sidevisninger for ${pathLabel} (2025)`;
@@ -408,7 +427,7 @@ LIMIT 25;`,
             shouldAutoExecuteRef.current = false;
             executeQuery();
         }
-    }, [step]);
+    }, [step, query]);
 
     const generateSqlFromAi = async () => {
         const basePrompt = aiPrompt.trim() || `Vis meg daglige sidevisninger for ${pathLabel} i 2025`;
@@ -764,10 +783,21 @@ ORDER BY term`;
                             onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 3px #0067C5'}
                             onBlur={e => e.currentTarget.style.boxShadow = 'none'}
                         />
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginTop: '6px' }}>
+                            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#0067C5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <span style={{ color: '#fff', fontSize: '13px', fontWeight: 700 }}>AI</span>
+                            </div>
+                            <div style={{ background: '#f0f4ff', border: '1px solid #c8d9f5', borderRadius: '0 8px 8px 8px', padding: '10px 14px', fontSize: '0.95rem', color: '#1a1a1a', lineHeight: '1.5' }}>
+                                Ditt spørsmål er veldig spennende! Hva med å legge til «i måneden» og «jeg ønsker ikke treff fra admin-sider»?
+                            </div>
+                        </div>
                     </div>
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Button variant="secondary" size="small" onClick={() => { setSelectedTidligere(null); setTidligereOpen(true); }}>
                             Eksempler
+                        </Button>
+                        <Button variant="secondary" size="small" onClick={() => { setLagEgenSqlTitle(''); setLagEgenSqlOpen(true); }}>
+                            Lag egen SQL
                         </Button>
                         <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />}
                             onClick={() => { shouldAutoExecuteRef.current = true; generateSqlFromAi(); }}>
@@ -840,7 +870,7 @@ ORDER BY term`;
                             </div>
                         </div>
                         <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Button variant="secondary" size="small" icon={<ChevronLeft size={16} />} onClick={() => setStep(1)}>Tilbake</Button>
+                            <Button variant="secondary" size="small" icon={<ChevronLeft size={16} />} onClick={() => setStep(1)}>Til KI bygger</Button>
                             <Button variant="secondary" size="small" onClick={() => setDownloadModalOpen(true)}>Last ned</Button>
                             {onAddWidget && (
                                 <Button
@@ -985,6 +1015,42 @@ ORDER BY term`;
                 </div>
             )}
 
+            <Modal open={lagEgenSqlOpen} onClose={() => setLagEgenSqlOpen(false)} header={{ heading: 'Lag egen SQL' }}>
+                <Modal.Body>
+                    <div className="flex flex-col gap-2">
+                        <label className="aksel-label aksel-label--small" htmlFor="lag-sql-title">Tittel</label>
+                        <input
+                            id="lag-sql-title"
+                            type="text"
+                            value={lagEgenSqlTitle}
+                            onChange={(e) => setLagEgenSqlTitle(e.target.value)}
+                            placeholder="Eks: Mine egne sidevisninger"
+                            style={{ padding: '8px 12px', borderRadius: '4px', border: '1px solid #6a6a6a', fontSize: '1rem', fontFamily: 'inherit', width: '100%' }}
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && lagEgenSqlTitle.trim()) {
+                                    setAiPrompt(lagEgenSqlTitle.trim());
+                                    setQuery(`SELECT\n  website_id,\n  name\nFROM\n  \`fagtorsdag-prod-81a6.umami_student.public_website\`\nLIMIT\n  100;`);
+                                    setResult(null);
+                                    setLagEgenSqlOpen(false);
+                                    setStep(3);
+                                }
+                            }}
+                        />
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" disabled={!lagEgenSqlTitle.trim()} onClick={() => {
+                        setAiPrompt(lagEgenSqlTitle.trim());
+                        setQuery(`SELECT\n  website_id,\n  name\nFROM\n  \`fagtorsdag-prod-81a6.umami_student.public_website\`\nLIMIT\n  100;`);
+                        setResult(null);
+                        setLagEgenSqlOpen(false);
+                        setStep(3);
+                    }}>Gå til SQL</Button>
+                    <Button variant="tertiary" onClick={() => setLagEgenSqlOpen(false)}>Avbryt</Button>
+                </Modal.Footer>
+            </Modal>
+
             <Modal open={tidligereOpen} onClose={() => setTidligereOpen(false)} header={{ heading: 'Eksempelspørringer' }}>
                 <Modal.Body>
                     <div className="flex flex-col gap-2" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
@@ -1005,8 +1071,7 @@ ORDER BY term`;
                             const order = item.tabOrder ?? [];
                             setTabOrder(order);
                             setIsApiOnly(!!(item as any).apiOnly);
-                            const itemTitle = (item as any).title || item.prompt;
-                            setAiPrompt(itemTitle);
+                            setAiPrompt(item.prompt);
                             setCurrentExplanation((item as any).explanation ?? null);
                             if ((item as any).apiOnly) {
                                 setP2Tab(order[0] ?? 'stegvisning');
