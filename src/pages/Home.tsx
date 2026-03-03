@@ -164,6 +164,12 @@ function Home() {
                         >
                             Prototype 3
                         </Link>
+                        <Link
+                            href="/prototype4"
+                            className="primary-button"
+                        >
+                            Prototype 4
+                        </Link>
                     </div>
                 </div>
             </Page.Block>
