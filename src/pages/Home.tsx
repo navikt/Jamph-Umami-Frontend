@@ -150,7 +150,7 @@ function Home() {
                             href="/ai-builder"
                             className="primary-button"
                         >
-                            Gå til KI byggeren
+                            Prototype 1
                         </Link>
                         <Link
                             href="/prototype2"
