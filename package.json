@@ -3,13 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@9.12.2",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server.js",
-    "start": "concurrently \"npm run dev\" \"npm run server\""
+    "start": "concurrently \"corepack pnpm dev\" \"corepack pnpm server\""
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.1.1",

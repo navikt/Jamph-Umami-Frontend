@@ -1,8 +1,11 @@
 # Build stage
 FROM cgr.dev/chainguard/wolfi-base:latest AS builder
 
-# Install Node.js and npm
+# Install Node.js and npm (Corepack provides pnpm)
 RUN apk update && apk add --no-cache nodejs npm
+
+# Enable pnpm via Corepack
+RUN corepack enable && corepack prepare pnpm@9.12.2 --activate
 
 # Build arg for GitHub token (provided by NAIS or CI/CD)
 ARG GITHUB_TOKEN
@@ -10,7 +13,7 @@ ARG GITHUB_TOKEN
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Create .npmrc for GitHub NPM registry authentication
 RUN if [ -n "$GITHUB_TOKEN" ]; then \
@@ -19,7 +22,7 @@ RUN if [ -n "$GITHUB_TOKEN" ]; then \
     fi
 
 # Install dependencies
-RUN npm install
+RUN pnpm install --frozen-lockfile
 
 # Remove .npmrc for security
 RUN rm -f .npmrc
@@ -28,7 +31,7 @@ RUN rm -f .npmrc
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Production stage
 FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/node:25@sha256:5181bb4b6a9129064acae4632ea92f3f991dd30d63c5d804fe59b9ad70faa544
@@ -39,7 +42,7 @@ ARG GITHUB_TOKEN
 WORKDIR /app
 
 # Copy package files and npmrc
-COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
 
 # Create .npmrc for GitHub NPM registry authentication
 RUN if [ -n "$GITHUB_TOKEN" ]; then \
@@ -47,8 +50,8 @@ RUN if [ -n "$GITHUB_TOKEN" ]; then \
     echo "@navikt:registry=https://npm.pkg.github.com" >> .npmrc; \
     fi
 
-# Install production dependencies using npm
-RUN npm install --production --no-save
+# Install production dependencies using pnpm
+RUN pnpm install --prod --frozen-lockfile
 
 # Remove .npmrc for security
 RUN rm -f .npmrc

@@ -261,8 +261,8 @@ const TaksonomiPage = () => {
                 <strong>Installer pakken:</strong>
               </BodyLong>
               <Box className="bg-gray-50 flex items-center justify-between p-6 border border-border-subtle rounded-medium">
-                <code className="text-sm">npm install @navikt/analytics-types</code>
-                <CopyButton copyText="npm install @navikt/analytics-types" size="small" />
+                <code className="text-sm">pnpm add @navikt/analytics-types</code>
+                <CopyButton copyText="pnpm add @navikt/analytics-types" size="small" />
               </Box>
             </Box>
 
