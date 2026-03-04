@@ -5,12 +5,14 @@ import DashboardBarChart from "../../components/dashboard/DashboardBarChart";
 import DashboardLineChart from "../../components/dashboard/DashboardLineChart";
 import DashboardAreaChart from "../../components/dashboard/DashboardAreaChart";
 import DashboardPieChart from "../../components/dashboard/DashboardPieChart";
+import DownloadResultsModal from "../../components/chartbuilder/results/DownloadResultsModal";
+import ShareWidgetModal from "../../components/analysis/ShareWidgetModal";
 
 type ChatMessage = {
     id: string;
     role: "user" | "bot";
     text: string;
-    chart?: { tabOrder: string[]; data: Record<string, unknown>[]; title: string };
+    chart?: { tabOrder: string[]; data: Record<string, unknown>[]; title: string; sql?: string };
     explanation?: string;
 };
 
@@ -21,18 +23,70 @@ const EXAMPLES = getPrototype4Examples(
 );
 
 const RENDERABLE_TABS = new Set(['linechart', 'areachart', 'barchart', 'piechart', 'table']);
-function bestTab(tabOrder: string[]): string {
-    return tabOrder.find(t => RENDERABLE_TABS.has(t)) ?? 'table';
-}
+const TAB_LABELS: Record<string, string> = {
+    linechart: 'Linje', areachart: 'Areal', barchart: 'Stolpe', piechart: 'Kake', table: 'Tabell',
+};
 
-function ChartRenderer({ tabOrder, data, title }: Readonly<{ tabOrder: string[]; data: Record<string, unknown>[]; title: string }>) {
-    const tab = bestTab(tabOrder);
+function ChartCard({ tabOrder, data, title, sql }: Readonly<{ tabOrder: string[]; data: Record<string, unknown>[]; title: string; sql?: string }>) {
+    const tabs = tabOrder.filter(t => RENDERABLE_TABS.has(t));
+    const [activeTab, setActiveTab] = useState(tabs[0] ?? 'table');
+    const [downloadOpen, setDownloadOpen] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const result = { data };
-    if (tab === 'barchart') return <DashboardBarChart result={result} title={title} />;
-    if (tab === 'linechart') return <DashboardLineChart result={result} title={title} />;
-    if (tab === 'areachart') return <DashboardAreaChart result={result} title={title} />;
-    if (tab === 'piechart') return <DashboardPieChart result={result} title={title} />;
-    return <DashboardTable data={data} title={title} />;
+
+    function renderChart() {
+        if (activeTab === 'barchart') return <DashboardBarChart result={result} title={title} />;
+        if (activeTab === 'linechart') return <DashboardLineChart result={result} title={title} />;
+        if (activeTab === 'areachart') return <DashboardAreaChart result={result} title={title} />;
+        if (activeTab === 'piechart') return <DashboardPieChart result={result} title={title} wide={true} />;
+        return <DashboardTable data={data} title={title} />;
+    }
+
+    return (
+        <>
+        <div style={{ border: '1px solid #dde1e7', borderRadius: 8, overflow: 'hidden', background: '#fff' }}>
+            {/* Tab bar */}
+            <div style={{ display: 'flex', borderBottom: '1px solid #dde1e7', background: '#fafafa', padding: '0 8px', gap: 2 }}>
+                {tabs.map(t => (
+                    <button key={t} onClick={() => setActiveTab(t)} style={{
+                        padding: '7px 14px', border: 'none', cursor: 'pointer', fontSize: 12,
+                        background: activeTab === t ? '#0067C5' : 'transparent',
+                        color: activeTab === t ? '#fff' : '#555',
+                        fontWeight: activeTab === t ? 600 : 400,
+                        borderRadius: activeTab === t ? '4px 4px 0 0' : 0,
+                    }}>
+                        {TAB_LABELS[t] ?? t}
+                    </button>
+                ))}
+            </div>
+            {/* Chart */}
+            <div style={{ height: 300, padding: 8 }}>
+                {renderChart()}
+            </div>
+            {/* Del / Lagre */}
+            <div style={{ display: 'flex', gap: 8, padding: '8px 12px', borderTop: '1px solid #dde1e7', background: '#fafafa' }}>
+                <button onClick={() => setShareOpen(true)} style={{
+                    padding: '5px 16px', fontSize: 12, border: '1px solid #0067C5',
+                    borderRadius: 4, background: '#0067C5', color: '#fff', cursor: 'pointer', fontWeight: 600,
+                }}>Del</button>
+                <button onClick={() => setDownloadOpen(true)} style={{
+                    padding: '5px 16px', fontSize: 12, border: '1px solid #0067C5',
+                    borderRadius: 4, background: '#fff', color: '#0067C5', cursor: 'pointer', fontWeight: 600,
+                }}>Lagre</button>
+            </div>
+        </div>
+        <DownloadResultsModal
+            result={result} open={downloadOpen} onClose={() => setDownloadOpen(false)}
+            chartType={activeTab} title={title}
+        />
+        <ShareWidgetModal
+            open={shareOpen} onClose={() => setShareOpen(false)}
+            sql={sql ?? ''} chartType={activeTab} defaultTitle={title}
+            sizes={[{ cols: 1, rows: 1, name: '1x1' }, { cols: 2, rows: 1, name: '2x1' }, { cols: 1, rows: 2, name: '1x2' }]}
+            result={result}
+        />
+        </>
+    );
 }
 
 const EXAMPLE_MESSAGES: Record<string, ChatMessage[]> = {};
@@ -45,7 +99,7 @@ EXAMPLES.forEach(ex => {
             role: "bot",
             text: ex.botReply,
             chart: EXAMPLE_MOCK_DATA[ex.id]
-                ? { tabOrder: ex.tabOrder, data: EXAMPLE_MOCK_DATA[ex.id], title: ex.title }
+                ? { tabOrder: ex.tabOrder, data: EXAMPLE_MOCK_DATA[ex.id], title: ex.title, sql: ex.sql }
                 : undefined,
             explanation: ex.explanation,
         },
@@ -65,17 +119,22 @@ const Prototype4 = () => {
     });
     const [inputText, setInputText] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const shouldScrollRef = useRef(false);
 
     const messages = sessionMessages[activeChatId] ?? [];
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        if (shouldScrollRef.current) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            shouldScrollRef.current = false;
+        }
     }, [messages]);
 
     const handleSendMessage = () => {
         const text = inputText.trim();
         if (!text) return;
         setInputText("");
+        shouldScrollRef.current = true;
         setSessionMessages(prev => ({
             ...prev,
             [activeChatId]: [...(prev[activeChatId] ?? []), { id: crypto.randomUUID(), role: "user" as const, text }],
@@ -154,11 +213,12 @@ const Prototype4 = () => {
                                     {msg.text}
                                 </div>
                                 {msg.chart && (
-                                    <div style={{ marginTop: 8, height: 320 }}>
-                                        <ChartRenderer
+                                    <div style={{ marginTop: 8 }}>
+                                        <ChartCard
                                             tabOrder={msg.chart.tabOrder}
                                             data={msg.chart.data}
                                             title={msg.chart.title}
+                                            sql={msg.chart.sql}
                                         />
                                     </div>
                                 )}
