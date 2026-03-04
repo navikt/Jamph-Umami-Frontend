@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PinnedWidget from './PinnedWidget';
 
 export interface PinnedItem {
@@ -31,6 +31,22 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onDro
     const [overId, setOverId] = useState<string | null>(null);
     const [overDelete, setOverDelete] = useState(false);
     const [externalOver, setExternalOver] = useState(false);
+    const scrollRafRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (!dragId) { if (scrollRafRef.current) { cancelAnimationFrame(scrollRafRef.current); scrollRafRef.current = null; } return; }
+        const ZONE = 80; const SPEED = 12;
+        let lastY = 0;
+        const onDragOver = (e: DragEvent) => { lastY = e.clientY; };
+        const scroll = () => {
+            if (lastY < ZONE) window.scrollBy(0, -SPEED);
+            else if (lastY > window.innerHeight - ZONE) window.scrollBy(0, SPEED);
+            scrollRafRef.current = requestAnimationFrame(scroll);
+        };
+        window.addEventListener('dragover', onDragOver);
+        scrollRafRef.current = requestAnimationFrame(scroll);
+        return () => { window.removeEventListener('dragover', onDragOver); if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current); };
+    }, [dragId]);
 
     function handleExternalDrop(e: React.DragEvent) {
         const raw = e.dataTransfer.getData('application/aibygger');
@@ -99,7 +115,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onDro
             {dragId && (
                 <div style={{
                     position: 'fixed',
-                    bottom: 32,
+                    bottom: 72,
                     left: 0,
                     right: 0,
                     display: 'flex',
