@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Select, Button, Modal, DatePicker } from '@navikt/ds-react';
+import { Select, Button, Modal, DatePicker, Accordion } from '@navikt/ds-react';
 import { format } from 'date-fns';
 import UrlSearchForm from './UrlSearchForm';
 
@@ -41,6 +41,8 @@ export interface FilterBarProps {
     // export / import
     onExport?: () => void;
     onImport?: () => void;
+    // ai bygger accordion
+    aiByggerPanel?: React.ReactNode;
 }
 
 export default function FilterBar({
@@ -62,7 +64,9 @@ export default function FilterBar({
     onUrlResolved,
     onExport,
     onImport,
+    aiByggerPanel,
 }: FilterBarProps) {
+    const [aiByggerOpen, setAiByggerOpen] = useState(false);
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
     const dateModalRef = useRef<HTMLDialogElement>(null);
     const [urlDirty, setUrlDirty] = useState(false);
@@ -191,6 +195,19 @@ export default function FilterBar({
                     )}
                 </div>
             </div>
+
+            {aiByggerPanel && (
+                <Accordion style={{ width: '100%', marginTop: 4 }}>
+                    <Accordion.Item open={aiByggerOpen} onOpenChange={setAiByggerOpen}>
+                        <Accordion.Header>KI-bygger</Accordion.Header>
+                        <Accordion.Content style={{ padding: 0 }}>
+                            <div style={{ height: 560, position: 'relative', overflow: 'hidden' }}>
+                                {aiByggerPanel}
+                            </div>
+                        </Accordion.Content>
+                    </Accordion.Item>
+                </Accordion>
+            )}
 
             <Modal
                 ref={dateModalRef}

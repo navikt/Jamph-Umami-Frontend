@@ -91,7 +91,6 @@ const Prototype3 = () => {
     const [customWidgets, setCustomWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
     const [widgetOrder, setWidgetOrder] = useState<string[]>(DEFAULT_WIDGETS.map(w => w.id));
     const [editingWidget, setEditingWidget] = useState<{ sql: string; chartType: string; title: string; aiPrompt?: string; result?: any } | null>(null);
-    const aiByggerRef = useRef<HTMLDivElement>(null);
 
     const [activeFilters, setActiveFilters] = useState({
         pathOperator: defaultPathOperator,
@@ -340,6 +339,21 @@ const Prototype3 = () => {
                     onUrlResolved={handleUrlResolved}
                     onExport={handleExport}
                     onImport={() => importInputRef.current?.click()}
+                    aiByggerPanel={
+                        <AiByggerPanel
+                            websiteId={effectiveWebsiteId}
+                            path={activeFilters.urlFilters[0] || '/'}
+                            pathOperator={activeFilters.pathOperator || 'starts-with'}
+                            startDate={activeFilters.customStartDate}
+                            endDate={activeFilters.customEndDate}
+                            editWidget={editingWidget}
+                            onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
+                                const id = crypto.randomUUID();
+                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }]);
+                                setWidgetOrder(prev => [...prev, id]);
+                            }}
+                        />
+                    }
                 />
             }
             hideHeader
@@ -374,25 +388,9 @@ const Prototype3 = () => {
                         onDelete={handleDeleteWidget}
                         onEdit={(w) => {
                             setEditingWidget({ sql: w.customWidget.sql, chartType: w.customWidget.chartType, title: w.customWidget.title, aiPrompt: w.customWidget.aiPrompt, result: w.customWidget.result });
-                            setTimeout(() => aiByggerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                         }}
                     />
-                    {/* AI-bygger – full width, below the pinned grid */}
-                    <div ref={aiByggerRef} style={{ border: '1px solid #e0e0e0', aspectRatio: '5/4', overflow: 'hidden', position: 'relative' }}>
-                        <AiByggerPanel
-                            websiteId={effectiveWebsiteId}
-                            path={activeFilters.urlFilters[0] || '/'}
-                            pathOperator={activeFilters.pathOperator || 'starts-with'}
-                            startDate={activeFilters.customStartDate}
-                            endDate={activeFilters.customEndDate}
-                            editWidget={editingWidget}
-                            onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
-                                const id = crypto.randomUUID();
-                                setCustomWidgets(prev => [...prev, { id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }]);
-                                setWidgetOrder(prev => [...prev, id]);
-                            }}
-                        />
-                    </div>
+                    {/* AI-bygger removed – now in accordion in FilterBar */}
                 </div>
             )}
         </DashboardLayout>

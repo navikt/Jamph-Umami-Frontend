@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import DashboardTable from '../../components/dashboard/DashboardTable';
-import DashboardLineChart from '../../components/dashboard/DashboardLineChart';
-import DashboardBarChart from '../../components/dashboard/DashboardBarChart';
-import DashboardPieChart from '../../components/dashboard/DashboardPieChart';
+import PinnedWidget from '../../components/dashboard/PinnedWidget';
 import { getPrototype4Examples, EXAMPLE_MOCK_DATA } from './prototype4Examples';
 
 type ChatMsg = {
@@ -135,9 +132,7 @@ export default function AiChartBuilderNew() {
 
     function renderChart() {
         if (!displayResult) return null;
-        if (activeTab === 'linechart') return <DashboardLineChart result={displayResult} title="" />;
-        if (activeTab === 'barchart') return <DashboardBarChart result={displayResult} title="" />;
-        return <DashboardTable data={displayResult.data ?? []} title="" />;
+        return <PinnedWidget result={displayResult} chartType={activeTab} title="" />;
     }
 
     return (

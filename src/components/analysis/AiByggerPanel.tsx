@@ -1,7 +1,7 @@
 // AI Bygger — the green-box panel. Used natively inside Prototype3 and also
 // as a standalone page (AiBygger.tsx wraps this with URL-param context).
 import { useState, useEffect, useRef } from 'react';
-import ResultsPanel from '../chartbuilder/results/ResultsPanel';
+import PinnedWidget from '../dashboard/PinnedWidget';
 import ShareWidgetModal from './ShareWidgetModal';
 import DownloadResultsModal from '../chartbuilder/results/DownloadResultsModal';
 import { Button, Modal, Alert } from '@navikt/ds-react';
@@ -852,21 +852,19 @@ ORDER BY term`;
                                               </div>
                                 ) : p2Tab === 'statcards' ? (
                                     result
-                                        ? <DashboardStatCards result={result} />
+                                        ? <DashboardStatCards result={result} title={aiPrompt} />
                                         : <div className="flex items-center justify-center h-full text-gray-500 text-sm">Kjør spørringen for å se nøkkeltall</div>
                                 ) : p2Tab === 'kiforklaring' ? (
-                                    <DashboardKIForklaring result={{ text: currentExplanation ?? '' }} />
-                                ) : <ResultsPanel
-                                    result={result} loading={loading} error={error}
-                                    queryStats={result?.queryStats} lastAction={null}
-                                    showLoadingMessage={loading} executeQuery={executeQuery} handleRetry={executeQuery}
-                                    prepareLineChartData={prepareLineChartData}
-                                    prepareBarChartData={prepareBarChartData}
-                                    preparePieChartData={preparePieChartData}
-                                    sql={query} websiteId={sqlWebsiteId}
-                                    containerStyle="none" hideHeading hideInternalShareButton hideInternalDownloadButton
-                                    fixedAspect hideTabsList externalTab={p2Tab} onExternalTabChange={setP2Tab}
-                                />}
+                                    <DashboardKIForklaring result={{ text: currentExplanation ?? '' }} title={aiPrompt} />
+                                ) : loading ? (
+                                    <div className="flex items-center justify-center h-full text-gray-500">Laster...</div>
+                                ) : error ? (
+                                    <div className="flex items-center justify-center h-full text-red-500 text-sm">{error}</div>
+                                ) : result ? (
+                                    <PinnedWidget result={result} chartType={p2Tab} title={aiPrompt} />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-gray-500 text-sm">Kjør spørringen for å se resultater</div>
+                                )}
                             </div>
                         </div>
                         <div style={{ height: '10%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
