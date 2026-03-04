@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PinnedWidget from './PinnedWidget';
+import { WIDGET_SIZES } from '../../lib/widgetSizes';
 
 export interface PinnedItem {
     id: string;
@@ -23,14 +24,16 @@ interface PinnedGridProps {
     onReorder: (fromId: string, toId: string) => void;
     onDelete: (id: string) => void;
     onEdit?: (widget: PinnedItem) => void;
+    onResize?: (id: string, size: { cols: number; rows: number }) => void;
     onDropExternal?: (data: ExternalWidgetDrop) => void;
 }
 
-export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onDropExternal }: PinnedGridProps) {
+export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onResize, onDropExternal }: PinnedGridProps) {
     const [dragId, setDragId] = useState<string | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
     const [overDelete, setOverDelete] = useState(false);
     const [externalOver, setExternalOver] = useState(false);
+    const [activeOverlayId, setActiveOverlayId] = useState<string | null>(null);
     const scrollRafRef = useRef<number | null>(null);
 
     useEffect(() => {
@@ -82,7 +85,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onDro
                         <div
                             key={w.id}
                             draggable
-                            onDoubleClick={() => onEdit?.(w)}
+                            onDoubleClick={(e) => { e.stopPropagation(); setActiveOverlayId(prev => prev === w.id ? null : w.id); }}
                             onDragStart={(e) => { e.dataTransfer.setData('text/plain', w.id); e.dataTransfer.effectAllowed = 'move'; setDragId(w.id); setExternalOver(false); }}
                             onDragEnd={() => { setDragId(null); setOverId(null); setOverDelete(false); }}
                             onDragEnter={(e) => { e.preventDefault(); if (dragId !== w.id) setOverId(w.id); }}
@@ -106,6 +109,36 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onDro
                                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)', zIndex: 10, pointerEvents: 'none' }} />
                             )}
                             <PinnedWidget result={w.customWidget.result} sql={w.customWidget.sql} chartType={w.customWidget.chartType} colSpan={w.colSpan} rowSpan={w.rowSpan} title={w.customWidget.title} />
+                            {activeOverlayId === w.id && (
+                                <div
+                                    style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                                    onClick={() => setActiveOverlayId(null)}
+                                >
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onEdit?.(w); setActiveOverlayId(null); setTimeout(() => document.getElementById('ki-bygger-accordion')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
+                                        style={{ padding: '6px 20px', background: '#0067C5', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}
+                                    >Åpne i KI bygger</button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onDelete(w.id); setActiveOverlayId(null); }}
+                                        style={{ padding: '6px 20px', background: '#c0392b', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}
+                                    >Slett</button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onDelete(w.id); onEdit?.(w); setActiveOverlayId(null); setTimeout(() => document.getElementById('ki-bygger-accordion')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }}
+                                        style={{ padding: '6px 20px', background: '#0067C5', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 14, fontWeight: 500 }}
+                                    >Slett og åpne i KI bygger</button>
+                                    {(WIDGET_SIZES[w.customWidget.chartType] ?? []).length > 0 && (
+                                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginTop: 4 }}>
+                                            {(WIDGET_SIZES[w.customWidget.chartType] ?? []).map(size => (
+                                                <button
+                                                    key={size.name}
+                                                    onClick={(e) => { e.stopPropagation(); onResize?.(w.id, size); setActiveOverlayId(null); }}
+                                                    style={{ padding: '4px 12px', background: (w.colSpan === size.cols && w.rowSpan === size.rows) ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)', color: (w.colSpan === size.cols && w.rowSpan === size.rows) ? '#111' : '#fff', border: '1px solid rgba(255,255,255,0.5)', borderRadius: 4, cursor: 'pointer', fontSize: 12, fontWeight: (w.colSpan === size.cols && w.rowSpan === size.rows) ? 700 : 400 }}
+                                                >{size.name}</button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     );
                 })}

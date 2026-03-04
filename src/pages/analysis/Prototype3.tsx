@@ -393,6 +393,9 @@ const Prototype3 = () => {
                             setEditingWidget({ sql: w.customWidget.sql, chartType: w.customWidget.chartType, title: w.customWidget.title, aiPrompt: w.customWidget.aiPrompt, result: w.customWidget.result });
                             setAiByggerOpen(true);
                         }}
+                        onResize={(id, size) => {
+                            setCustomWidgets(prev => prev.map(cw => cw.id === id ? { ...cw, size } : cw));
+                        }}
                         onDropExternal={(data) => {
                             const id = crypto.randomUUID();
                             setCustomWidgets(prev => [{ id, sql: data.sql, chartType: data.chartType, result: data.result, size: data.size, title: data.title || '', aiPrompt: data.aiPrompt || '' }, ...prev]);

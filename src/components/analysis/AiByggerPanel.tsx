@@ -12,6 +12,7 @@ import { useChartDataPrep } from '../../lib/useChartDataPrep';
 import UmamiJourneyView from './journey/UmamiJourneyView';
 import DashboardStatCards from '../dashboard/DashboardStatCards';
 import DashboardKIForklaring from '../dashboard/DashboardKIForklaring';
+import { WIDGET_SIZES } from '../../lib/widgetSizes';
 
 const defaultQuery = `SELECT
   website_id,
@@ -47,19 +48,7 @@ const allTabs = [
     { value: 'kiforklaring', label: 'KI forklaring' },
 ];
 
-type WidgetSize = { cols: number; rows: number; name: string };
 
-const WIDGET_SIZES: Record<string, WidgetSize[]> = {
-    table:       [{ cols: 1, rows: 1, name: '1×1' }, { cols: 1, rows: 2, name: '1×2' }, { cols: 2, rows: 1, name: '2×1' }, { cols: 2, rows: 2, name: '2×2' }],
-    linechart:   [{ cols: 1, rows: 1, name: '1×1' }, { cols: 2, rows: 1, name: '2×1' }],
-    areachart:   [{ cols: 1, rows: 1, name: '1×1' }, { cols: 2, rows: 1, name: '2×1' }],
-    barchart:    [{ cols: 1, rows: 1, name: '1×1' }, { cols: 2, rows: 1, name: '2×1' }],
-    piechart:    [{ cols: 1, rows: 2, name: '1×2' }, { cols: 2, rows: 1, name: '2×1' }],
-    statcards:   [{ cols: 1, rows: 1, name: '1×1' }, { cols: 2, rows: 1, name: '2×1' }],
-    stegvisning:  [{ cols: 2, rows: 1, name: 'Standard' }],
-    regresjon:    [{ cols: 1, rows: 1, name: 'Standard' }],
-    kiforklaring: [{ cols: 1, rows: 1, name: '1×1' }, { cols: 2, rows: 1, name: '2×1' }],
-};
 
 interface Props {
     readonly websiteId: string;
