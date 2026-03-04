@@ -33,8 +33,23 @@ kanalen [#researchops](https://nav-it.slack.com/archives/C02UGFS2J4B).
    Click the link to continue
 
    
-   Note: To restart the server, press `Ctrl+C` to stop it, then run `corepack pnpm start` again.
 
+   ### macOS / Linux
+   ```bash
+   # If pnpm is not on PATH, use Corepack
+   corepack prepare pnpm@9.12.2 --activate
+   pnpm install        # first time only
+   pnpm start
+   ```
 
+   ### Windows
+   > **OBS:** `corepack enable` krever admin-rettigheter på Windows og feiler uten det. Kan åpne powershell som admin eller bruke npm til å  installere pnpm.
+   > Installer pnpm via npm i stedet – det fungerer uten admin.
+   ```powershell
+   npm install -g pnpm   # én gang, krever ikke admin
+   pnpm install          # første gang
+   pnpm start
+   ```
+   Click the link to continue
 
-   
+   Note: To restart the server, press `Ctrl/command+C` to stop it, then run `pnpm start` again.
