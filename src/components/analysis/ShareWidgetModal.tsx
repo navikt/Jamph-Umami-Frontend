@@ -49,7 +49,7 @@ export default function ShareWidgetModal({ open, onClose, sql, chartType, defaul
   };
 
   return (
-    <Modal open={open} onClose={onClose} header={{ heading: 'Del widget' }}>
+    <Modal open={open} onClose={onClose} header={{ heading: 'Del datafremstilling' }}>
       <Modal.Body>
         <div className="space-y-5">
           <TextField

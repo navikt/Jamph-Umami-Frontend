@@ -91,6 +91,7 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
     const [lagEgenSqlOpen, setLagEgenSqlOpen] = useState(false);
     const [lagEgenSqlTitle, setLagEgenSqlTitle] = useState('');
     const shouldAutoExecuteRef = useRef(false);
+    const [editingTitle, setEditingTitle] = useState(false);
 
     // Load a widget from the dashboard for editing
     useEffect(() => {
@@ -829,7 +830,7 @@ ORDER BY term`;
                             )}
                         </div>
                         <div
-                            style={{ height: '80%', overflow: 'hidden', cursor: onAddWidget ? 'grab' : undefined }}
+                            style={{ height: '80%', overflow: 'hidden', cursor: onAddWidget ? 'grab' : undefined, position: 'relative' }}
                             draggable={!!onAddWidget}
                             onDragStart={onAddWidget ? (e) => {
                                 const widgetResult = p2Tab === 'stegvisning' ? journeyData
@@ -842,6 +843,21 @@ ORDER BY term`;
                                 e.dataTransfer.effectAllowed = 'copy';
                             } : undefined}
                         >
+                            {editingTitle ? (
+                                <input
+                                    autoFocus
+                                    value={aiPrompt}
+                                    onChange={(e) => setAiPrompt(e.target.value)}
+                                    onBlur={() => setEditingTitle(false)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') { e.currentTarget.blur(); } }}
+                                    style={{ position: 'absolute', top: 10, left: 'calc(5% + 12px)', width: 'calc(90% - 24px)', height: 22, fontSize: 13, fontWeight: 600, padding: 0, border: 'none', outline: 'none', boxShadow: 'none', background: '#f9fafb', color: '#111827', zIndex: 10, cursor: 'text' }}
+                                />
+                            ) : (
+                                <div
+                                    onDoubleClick={() => setEditingTitle(true)}
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 35, zIndex: 10, cursor: 'text' }}
+                                />
+                            )}
                             <div style={{ width: '90%', height: '100%', overflow: 'auto', margin: '0 auto' }}>
                                 {p2Tab === 'stegvisning' ? (
                                     journeyLoading
