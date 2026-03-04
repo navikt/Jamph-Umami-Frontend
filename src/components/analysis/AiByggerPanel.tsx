@@ -464,7 +464,7 @@ LIMIT 25;`,
             const response = await fetch('/api/bigquery', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, analysisType: 'AI bygger' }),
+                body: JSON.stringify({ query, analysisType: 'KI bygger' }),
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Query failed');
@@ -580,7 +580,7 @@ LIMIT 25;`,
             fetch('/api/bigquery', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: sql, analysisType: 'AI bygger - regresjon' }),
+                body: JSON.stringify({ query: sql, analysisType: 'KI bygger - regresjon' }),
             })
                 .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error || 'Query failed'); setResult(d); }))
                 .catch((err: any) => setError(err.message || 'An error occurred'))
@@ -757,7 +757,7 @@ ORDER BY term`;
             {step === 1 && (
                 <div className={boxClass}>
                     <div style={{ height: '10%', display: 'flex', alignItems: 'center' }}>
-                        <h2 className="text-lg font-semibold text-gray-800">AI bygger — hvilken graf?</h2>
+                        <h2 className="text-lg font-semibold text-gray-800">KI bygger — hvilken graf?</h2>
                     </div>
                     <div style={{ height: '80%', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '10px', width: '100%' }}>
                         <p style={{ fontSize: '1rem', color: '#1a1a1a', lineHeight: '1.5', margin: 0, marginBottom: '16px' }}>

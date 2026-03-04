@@ -205,7 +205,7 @@ export default function FilterBar({
             {aiByggerPanel && (
                 <Accordion id="ki-bygger-accordion" style={{ width: '100%', marginTop: 4 }}>
                     <Accordion.Item open={aiByggerOpen} onOpenChange={setAiByggerOpen}>
-                        <Accordion.Header>KI-bygger</Accordion.Header>
+                        <Accordion.Header>KI bygger</Accordion.Header>
                         <Accordion.Content style={{ padding: 0 }}>
                             <div style={{ height: 560, position: 'relative', overflow: 'hidden' }}>
                                 {aiByggerPanel}

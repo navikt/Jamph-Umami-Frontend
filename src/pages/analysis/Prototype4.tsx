@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useRef } from "react";
+import { Chat, Button, Textarea, VStack } from "@navikt/ds-react";
 import { getPrototype4Examples, EXAMPLE_MOCK_DATA } from "./prototype4Examples";
 import DashboardTable from "../../components/dashboard/DashboardTable";
 import DashboardBarChart from "../../components/dashboard/DashboardBarChart";
@@ -65,14 +66,8 @@ function ChartCard({ tabOrder, data, title, sql }: Readonly<{ tabOrder: string[]
             </div>
             {/* Del / Lagre */}
             <div style={{ display: 'flex', gap: 8, padding: '8px 12px', borderTop: '1px solid #dde1e7', background: '#fafafa' }}>
-                <button onClick={() => setShareOpen(true)} style={{
-                    padding: '5px 16px', fontSize: 12, border: '1px solid #0067C5',
-                    borderRadius: 4, background: '#0067C5', color: '#fff', cursor: 'pointer', fontWeight: 600,
-                }}>Del</button>
-                <button onClick={() => setDownloadOpen(true)} style={{
-                    padding: '5px 16px', fontSize: 12, border: '1px solid #0067C5',
-                    borderRadius: 4, background: '#fff', color: '#0067C5', cursor: 'pointer', fontWeight: 600,
-                }}>Lagre</button>
+                <Button size="small" variant="primary" onClick={() => setShareOpen(true)}>Del datafremstilling</Button>
+                <Button size="small" variant="secondary" onClick={() => setDownloadOpen(true)}>Last ned</Button>
             </div>
         </div>
         <DownloadResultsModal
@@ -189,81 +184,65 @@ const Prototype4 = () => {
                     ))}
                 </div>
                 <div style={{ padding: "10px 12px", borderTop: "1px solid #e0e0e0" }}>
-                    <button
-                        onClick={handleNewChat}
-                        style={{ width: "100%", padding: "7px", border: "1px solid #c0c0c0", borderRadius: 4, background: "#fff", cursor: "pointer", fontSize: 13 }}>
+                    <Button onClick={handleNewChat} variant="secondary" size="small" style={{ width: "100%" }}>
                         + Ny samtale
-                    </button>
+                    </Button>
                 </div>
             </div>
 
             {/* Chat area */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
                 <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
-                    {messages.map(msg => (
-                        <div key={msg.id} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", marginBottom: 16 }}>
-                            <div style={{ maxWidth: msg.chart ? "85%" : "70%" }}>
-                                <div style={{
-                                    padding: "9px 14px",
-                                    borderRadius: msg.role === "user" ? "12px 12px 0 12px" : "0 12px 12px 12px",
-                                    background: msg.role === "user" ? "#0067C5" : "#f0f4ff",
-                                    color: msg.role === "user" ? "#fff" : "#262626",
-                                    fontSize: 14, lineHeight: 1.5,
-                                }}>
-                                    {msg.text}
-                                </div>
+                    <VStack gap="space-4">
+                        {messages.map(msg => msg.role === "user" ? (
+                            <Chat key={msg.id} name="Deg" position="right" data-color="brand-beige" size="small">
+                                <Chat.Bubble>{msg.text}</Chat.Bubble>
+                            </Chat>
+                        ) : (
+                            <Chat key={msg.id} avatar="KI" name="KI bygger" data-color="brand-blue" size="small">
+                                <Chat.Bubble>{msg.text}</Chat.Bubble>
                                 {msg.chart && (
-                                    <div style={{ marginTop: 8 }}>
+                                    <Chat.Bubble>
                                         <ChartCard
                                             tabOrder={msg.chart.tabOrder}
                                             data={msg.chart.data}
                                             title={msg.chart.title}
                                             sql={msg.chart.sql}
                                         />
-                                    </div>
+                                    </Chat.Bubble>
                                 )}
                                 {msg.explanation && (
-                                    <div style={{
-                                        marginTop: 8, padding: "10px 14px",
-                                        borderRadius: "0 12px 12px 12px",
-                                        background: "#f0f4ff",
-                                        color: "#262626", fontSize: 13, lineHeight: 1.6,
-                                        borderLeft: "3px solid #0067C5",
-                                    }}>
-                                        <span style={{ fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", color: "#0067C5", display: "block", marginBottom: 4 }}>KI-analyse</span>
+                                    <Chat.Bubble>
+                                        <span style={{ fontWeight: 600, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: 4 }}>KI-analyse</span>
                                         {msg.explanation}
-                                    </div>
+                                    </Chat.Bubble>
                                 )}
-                            </div>
-                        </div>
-                    ))}
+                            </Chat>
+                        ))}
+                    </VStack>
                     <div ref={messagesEndRef} />
                 </div>
                 <div style={{ padding: "12px 24px", borderTop: "1px solid #e8e8e8", background: "#fafafa", display: "flex", gap: 8, alignItems: "flex-end" }}>
-                    <textarea
-                        placeholder="Skriv inn her..."
-                        value={inputText}
-                        onChange={e => setInputText(e.target.value)}
-                        onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        rows={2}
-                        style={{
-                            flex: 1, padding: "9px 12px", borderRadius: 6, border: "1px solid #c0c0c0",
-                            fontSize: 14, resize: "none", fontFamily: "inherit", outline: "none",
-                            background: "#fff", color: "#262626",
-                        }}
-                    />
-                    <button
+                    <div style={{ flex: 1 }}>
+                        <Textarea
+                            label=""
+                            hideLabel
+                            placeholder="Skriv inn her..."
+                            value={inputText}
+                            onChange={e => setInputText(e.target.value)}
+                            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                            minRows={2}
+                            maxRows={4}
+                            resize={false}
+                        />
+                    </div>
+                    <Button
                         onClick={handleSendMessage}
                         disabled={!inputText.trim()}
-                        style={{
-                            padding: "9px 18px", borderRadius: 6, border: "none",
-                            background: inputText.trim() ? "#0067C5" : "#ccc",
-                            color: "#fff",
-                            cursor: inputText.trim() ? "pointer" : "default",
-                            fontSize: 14, fontWeight: 500,
-                        }}>
+                        variant="primary"
+                    >
                         Send
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
