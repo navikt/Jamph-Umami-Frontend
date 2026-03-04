@@ -11,7 +11,7 @@ import Charts from "./pages/analysis/Chartbuilder.tsx";
 import MetabaseGuide from "./pages/articles/MetabaseGuide.tsx";
 
 import SqlEditor from "./pages/analysis/SqlEditor.tsx";
-import AiChartBuilder from "./pages/analysis/AiChartBuilder.tsx";
+import AiChartBuilder from "./pages/analysis/AiChartBuilderNew.tsx";
 import Prototype2 from "./pages/analysis/Prototype2.tsx";
 import Prototype3 from "./pages/analysis/Prototype3.tsx";
 import Prototype4 from "./pages/analysis/Prototype4.tsx";
