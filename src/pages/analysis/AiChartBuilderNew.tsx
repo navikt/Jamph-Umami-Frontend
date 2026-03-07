@@ -38,6 +38,8 @@ export default function AiChartBuilderNew() {
     ]);
     const [inputText, setInputText] = useState('');
     const [busy, setBusy] = useState(false);
+    const [historyOpen, setHistoryOpen] = useState(false);
+    const [examplesOpen, setExamplesOpen] = useState(false);
     const [displayResult, setDisplayResult] = useState<any>(null);
     const [displaySql, setDisplaySql] = useState('');
     const [activeTab, setActiveTab] = useState('table');
@@ -149,35 +151,65 @@ export default function AiChartBuilderNew() {
             }}>
 
                 {/* Chat-historikk */}
-                <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #eaecf0' }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: '#1a1a1a', marginBottom: 8 }}>Chat-historikk</div>
-                    {HISTORY.map(h => (
-                        <button key={h.id} onClick={() => loadExample(h)}
-                            style={{
-                                display: 'block', width: '100%', textAlign: 'left',
-                                padding: '5px 10px', marginBottom: 3,
-                                background: '#f0f4ff', border: 'none',
-                                borderRadius: 4, cursor: 'pointer', fontSize: 12, color: '#0067C5',
-                            }}>
-                            - {h.userMessage.length > 50 ? h.userMessage.slice(0, 50) + '...' : h.userMessage}
-                        </button>
-                    ))}
+                <div style={{ borderBottom: '1px solid #eaecf0' }}>
+                    <button
+                        onClick={() => setHistoryOpen(v => !v)}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            width: '100%', padding: '12px 16px',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            fontWeight: 600, fontSize: 13, color: '#1a1a1a',
+                        }}
+                    >
+                        <span>Chat-historikk</span>
+                        <span style={{ fontSize: 10, color: '#888', transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                    </button>
+                    {historyOpen && (
+                        <div style={{ padding: '0 16px 12px' }}>
+                            {HISTORY.map(h => (
+                                <button key={h.id} onClick={() => loadExample(h)}
+                                    style={{
+                                        display: 'block', width: '100%', textAlign: 'left',
+                                        padding: '5px 10px', marginBottom: 3,
+                                        background: '#f0f4ff', border: 'none',
+                                        borderRadius: 4, cursor: 'pointer', fontSize: 12, color: '#0067C5',
+                                    }}>
+                                    - {h.userMessage.length > 50 ? h.userMessage.slice(0, 50) + '...' : h.userMessage}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Eksempelspørsmål */}
-                <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #eaecf0' }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: '#1a1a1a', marginBottom: 8 }}>Eksempelspørsmål</div>
-                    {EXAMPLES.map(ex => (
-                        <button key={ex.id} onClick={() => loadExample(ex)}
-                            style={{
-                                display: 'block', width: '100%', textAlign: 'left',
-                                padding: '5px 10px', marginBottom: 3,
-                                background: '#fff', border: '1px solid #dde1e7',
-                                borderRadius: 4, cursor: 'pointer', fontSize: 12, color: '#333',
-                            }}>
-                            - {ex.userMessage.length > 50 ? ex.userMessage.slice(0, 50) + '...' : ex.userMessage}
-                        </button>
-                    ))}
+                <div style={{ borderBottom: '1px solid #eaecf0' }}>
+                    <button
+                        onClick={() => setExamplesOpen(v => !v)}
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            width: '100%', padding: '12px 16px',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            fontWeight: 600, fontSize: 13, color: '#1a1a1a',
+                        }}
+                    >
+                        <span>Eksempelspørsmål</span>
+                        <span style={{ fontSize: 10, color: '#888', transform: examplesOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                    </button>
+                    {examplesOpen && (
+                        <div style={{ padding: '0 16px 12px' }}>
+                            {EXAMPLES.map(ex => (
+                                <button key={ex.id} onClick={() => loadExample(ex)}
+                                    style={{
+                                        display: 'block', width: '100%', textAlign: 'left',
+                                        padding: '5px 10px', marginBottom: 3,
+                                        background: '#fff', border: '1px solid #dde1e7',
+                                        borderRadius: 4, cursor: 'pointer', fontSize: 12, color: '#333',
+                                    }}>
+                                    - {ex.userMessage.length > 50 ? ex.userMessage.slice(0, 50) + '...' : ex.userMessage}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Messages */}
@@ -214,20 +246,7 @@ export default function AiChartBuilderNew() {
                                             </div>
                                         )}
                                     </div>
-                                    {msg.result && (
-                                        <div style={{ marginTop: 5, display: 'flex', gap: 6 }}>
-                                            <button
-                                                onClick={() => { setDisplayResult(msg.result); setDisplaySql(msg.sql ?? ''); setActiveTab('table'); }}
-                                                style={{ padding: '3px 10px', fontSize: 11, border: '1px solid #c0c0c0', borderRadius: 4, background: '#fff', cursor: 'pointer' }}>
-                                                Forklaring
-                                            </button>
-                                            <button
-                                                onClick={() => { setDisplayResult(msg.result); setDisplaySql(msg.sql ?? ''); setShowSql(true); }}
-                                                style={{ padding: '3px 10px', fontSize: 11, border: '1px solid #c0c0c0', borderRadius: 4, background: '#fff', cursor: 'pointer' }}>
-                                                Vis SQL
-                                            </button>
-                                        </div>
-                                    )}
+
                                 </div>
                             )}
                         </div>
