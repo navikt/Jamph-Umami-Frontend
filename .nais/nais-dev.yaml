@@ -30,7 +30,7 @@ spec:
       cpu: 50m
       memory: 128Mi
   ingresses:
-    - https://startumami-dev.ansatt.nav.no
+    - https://jamph-dev.ansatt.nav.no
   azure:
     application:
       enabled: true

@@ -25,7 +25,7 @@ spec:
     max: 2
     cpuThresholdPercentage: 80
   ingresses:
-    - https://startumami.ansatt.nav.no
+    - https://jamph.ansatt.nav.no
   azure:
     application:
       enabled: true
