@@ -1,5 +1,5 @@
 {
-  "name": "umami-start",
+  "name": "jamph",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server.js",
-    "start": "concurrently \"corepack pnpm dev\" \"corepack pnpm server\""
+    "start": "concurrently --names \"VITE,SERVER\" --prefix-colors \"cyan,green\" \"pnpm run dev\" \"pnpm run server\""
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.1.1",
