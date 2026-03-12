@@ -12,7 +12,7 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       '@navikt/aksel-icons':
-        specifier: ^8.7.0
+        specifier: ^8.0.0
         version: 8.7.0
       '@toon-format/toon':
         specifier: ^2.1.0

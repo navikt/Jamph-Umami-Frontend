@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@google-cloud/bigquery": "^8.1.1",
-    "@navikt/aksel-icons": "^8.7.0",
+    "@navikt/aksel-icons": "^8.0.0",
     "@toon-format/toon": "^2.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
