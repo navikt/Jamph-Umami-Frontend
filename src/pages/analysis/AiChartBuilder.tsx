@@ -373,8 +373,8 @@ export default function AiChartBuilder() {
                 lineOptions: {
                     lineBorderWidth: '2',
                     strokeDasharray: '5 5',
-                } as any,
-            });
+                },
+            } as any);
         }
 
         return {
