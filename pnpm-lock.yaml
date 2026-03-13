@@ -12,8 +12,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1
       '@navikt/aksel-icons':
-        specifier: ^8.0.0
-        version: 8.0.0
+        specifier: ^8.7.0
+        version: 8.7.0
       '@toon-format/toon':
         specifier: ^2.1.0
         version: 2.1.0
@@ -602,9 +602,6 @@ packages:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
-  '@navikt/aksel-icons@8.0.0':
-    resolution: {integrity: sha512-ODo1iHDJFP8M8pOogxfGq31U/SftVyptO+KJoaris8r6H2F0Q9X+j0dQU+QxTCq459b1MfYhbLVD3JlSzj5FQA==}
 
   '@navikt/aksel-icons@8.7.0':
     resolution: {integrity: sha512-pANfaE/xr2a9Q3CYMWbCjhAk9+UNuUa50Ez37Zk2nZQYtjP1vLXluOgHrxGAGTs6T4ToE+IjtJdU9DoEBnBbdw==}
@@ -3123,8 +3120,6 @@ snapshots:
       monaco-editor: 0.55.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-
-  '@navikt/aksel-icons@8.0.0': {}
 
   '@navikt/aksel-icons@8.7.0': {}
 
