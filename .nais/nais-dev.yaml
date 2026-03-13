@@ -30,7 +30,8 @@ spec:
       cpu: 50m
       memory: 128Mi
   ingresses:
-    - https://jamph-dev.ansatt.nav.no
+    - https://jamph-dev.ansatt.dev.nav.no
+    - https://jamph.ekstern.dev.nav.no
   azure:
     application:
       enabled: true

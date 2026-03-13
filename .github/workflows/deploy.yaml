@@ -33,7 +33,7 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           build_secrets: |
-            "NODE_AUTH_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+            NODE_AUTH_TOKEN=${{ secrets.JAMPH_FRONTEND_GH_READ_PACKAGES }}
 
 
     outputs:
@@ -52,7 +52,7 @@ jobs:
         uses: "nais/deploy/actions/deploy@v2"
         env:
           CLUSTER: "dev-gcp"
-          RESOURCE: .nais/dev/nais-dev.yaml
+          RESOURCE: .nais/nais-dev.yaml
           VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
       - name: "Create dev deployment tag"
         if: success()
@@ -78,7 +78,7 @@ jobs:
         uses: "nais/deploy/actions/deploy@v2"
         env:
           CLUSTER: "prod-gcp"
-          RESOURCE: .nais/prod/nais-prod.yaml
+          RESOURCE: .nais/nais-prod.yaml
           VAR: image=${{ needs.build.outputs.image }},version=${{ github.sha }}
       - name: "Create deployment tag"
         if: success()
