@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "widgets": [
+    {
+      "id": "default-1",
+      "title": "Nøkkeltall – aksel.nav.no 2025",
+      "aiPrompt": "Nøkkeltall: handlinger, navigering og frafall",
+      "chartType": "statcards",
+      "size": { "cols": 2, "rows": 1 },
+      "sql": "WITH sessions AS (\n  SELECT session_id, COUNT(*) AS page_count, COUNTIF(event_type = 2) AS event_count\n  FROM `fagtorsdag-prod-81a6.umami_student.event`\n  WHERE event_type IN (1, 2) AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n    AND EXTRACT(YEAR FROM created_at) = 2025\n  GROUP BY session_id\n)\nSELECT 'Unike besøkende' AS kategori, COUNT(*) AS sesjoner FROM sessions\nUNION ALL SELECT 'Utførte handlinger', COUNTIF(event_count > 0) FROM sessions\nUNION ALL SELECT 'Navigering uten handling', COUNTIF(event_count = 0 AND page_count > 1) FROM sessions\nUNION ALL SELECT 'Forlot nettstedet', COUNTIF(page_count = 1 AND event_count = 0) FROM sessions;"
+    },
+    {
+      "id": "default-2",
+      "title": "Daglige sidevisninger 2025",
+      "aiPrompt": "Daglige sidevisninger i 2025",
+      "chartType": "areachart",
+      "size": { "cols": 2, "rows": 1 },
+      "sql": "SELECT FORMAT_TIMESTAMP('%Y-%m-%d', created_at) AS dato, COUNT(*) AS sidevisninger\nFROM `fagtorsdag-prod-81a6.umami_student.event`\nWHERE event_type = 1 AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY dato ORDER BY dato ASC;"
+    },
+    {
+      "id": "default-3",
+      "title": "Handlinger på aksel.nav.no",
+      "aiPrompt": "Hvilke handlinger gjør brukerne på siden?",
+      "chartType": "table",
+      "size": { "cols": 2, "rows": 1 },
+      "sql": "WITH sessions_on_page AS (\n  SELECT DISTINCT session_id\n  FROM `fagtorsdag-prod-81a6.umami_student.event`\n  WHERE event_type = 2 AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n    AND EXTRACT(YEAR FROM created_at) = 2025\n),\nevents_labeled AS (\n  SELECT e.session_id, e.event_id, e.created_at,\n    CASE WHEN e.event_name = 'navigere' THEN\n      CONCAT(COALESCE(MAX(CASE WHEN p.data_key = 'kilde' THEN p.string_value END), '?'), ' → ',\n             COALESCE(MAX(CASE WHEN p.data_key = 'url' THEN p.string_value END), '?'))\n    ELSE e.event_name END AS handling\n  FROM sessions_on_page s\n  JOIN `fagtorsdag-prod-81a6.umami_student.event` e\n    ON s.session_id = e.session_id AND e.website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1' AND e.event_type = 2\n    AND EXTRACT(YEAR FROM e.created_at) = 2025\n  LEFT JOIN `fagtorsdag-prod-81a6.umami_student.event_data` d\n    ON e.event_id = d.website_event_id AND e.website_id = d.website_id AND e.created_at = d.created_at\n  LEFT JOIN UNNEST(d.event_parameters) AS p\n  GROUP BY e.session_id, e.event_id, e.event_name, e.created_at\n),\nevents_numbered AS (\n  SELECT session_id, handling,\n    ROW_NUMBER() OVER (PARTITION BY session_id ORDER BY created_at) AS steg_num\n  FROM events_labeled\n),\ntotal AS (SELECT COUNT(*) AS n FROM sessions_on_page),\npivoted AS (\n  SELECT session_id,\n    MAX(CASE WHEN steg_num = 1 THEN handling END) AS steg_1,\n    MAX(CASE WHEN steg_num = 2 THEN handling END) AS steg_2,\n    MAX(CASE WHEN steg_num = 3 THEN handling END) AS steg_3,\n    MAX(CASE WHEN steg_num = 4 THEN handling END) AS steg_4,\n    MAX(CASE WHEN steg_num = 5 THEN handling END) AS steg_5\n  FROM events_numbered GROUP BY session_id\n)\nSELECT COUNT(*) AS antall,\n  CONCAT(ROUND(COUNT(*) * 100.0 / MAX(total.n), 1), '%') AS andel,\n  COALESCE(steg_1, '(ingen hendelser)') AS steg_1,\n  COALESCE(steg_2, '-') AS steg_2, COALESCE(steg_3, '-') AS steg_3,\n  COALESCE(steg_4, '-') AS steg_4, COALESCE(steg_5, '-') AS steg_5\nFROM pivoted, total\nGROUP BY steg_1, steg_2, steg_3, steg_4, steg_5\nORDER BY antall DESC LIMIT 20;"
+    },
+    {
+      "id": "default-4",
+      "title": "Sidevisninger per måned 2025",
+      "aiPrompt": "Sidevisninger per måned i 2025",
+      "chartType": "barchart",
+      "size": { "cols": 2, "rows": 1 },
+      "sql": "SELECT EXTRACT(MONTH FROM created_at) AS maaned, COUNT(*) AS sidevisninger\nFROM `fagtorsdag-prod-81a6.umami_student.event`\nWHERE event_type = 1 AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY maaned ORDER BY maaned ASC;"
+    },
+    {
+      "id": "default-5",
+      "title": "Topp 12 undersider 2025",
+      "aiPrompt": "Topp 12 mest besøkte undersider i 2025",
+      "chartType": "table",
+      "size": { "cols": 1, "rows": 1 },
+      "sql": "SELECT url_path AS side, COUNT(*) AS sidevisninger\nFROM `fagtorsdag-prod-81a6.umami_student.event`\nWHERE event_type = 1 AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY side ORDER BY sidevisninger DESC LIMIT 12;"
+    },
+    {
+      "id": "default-7",
+      "title": "Trafikkilder 2025",
+      "aiPrompt": "Trafikkilder i 2025",
+      "chartType": "piechart",
+      "size": { "cols": 1, "rows": 2 },
+      "sql": "SELECT COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(*) AS sidevisninger\nFROM `fagtorsdag-prod-81a6.umami_student.event`\nWHERE event_type = 1 AND website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY kilde ORDER BY sidevisninger DESC LIMIT 10;"
+    },
+    {
+      "id": "default-6",
+      "title": "Operativsystem 2025",
+      "aiPrompt": "Hvilket operativsystem bruker brukerne?",
+      "chartType": "barchart",
+      "size": { "cols": 1, "rows": 1 },
+      "sql": "SELECT COALESCE(NULLIF(s.os, ''), '(ukjent)') AS operativsystem,\n  COUNT(DISTINCT e.session_id) AS unike_besokende\nFROM `fagtorsdag-prod-81a6.umami_student.event` e\nLEFT JOIN `fagtorsdag-prod-81a6.umami_student.session` s ON e.session_id = s.session_id\nWHERE e.event_type = 1 AND e.website_id = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1'\n  AND EXTRACT(YEAR FROM e.created_at) = 2025\nGROUP BY operativsystem ORDER BY unike_besokende DESC LIMIT 8;"
+    }
+  ]
+}

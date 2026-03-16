@@ -143,6 +143,8 @@ function Home() {
                         <Link
                             href="/grafbygger"
                             className="primary-button"
+                            onClick={(e) => e.preventDefault()}
+                            style={{ opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(1)', pointerEvents: 'none' }}
                         >
                             Gå til Grafbyggeren
                         </Link>
@@ -150,7 +152,27 @@ function Home() {
                             href="/ai-builder"
                             className="primary-button"
                         >
-                            Gå til KI byggeren
+                            Prototype 1
+                        </Link>
+                        <Link
+                            href="/prototype2"
+                            className="primary-button"
+                            onClick={(e) => e.preventDefault()}
+                            style={{ opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(1)', pointerEvents: 'none' }}
+                        >
+                            Prototype 2
+                        </Link>
+                        <Link
+                            href="/prototype3"
+                            className="primary-button"
+                        >
+                            Prototype 3
+                        </Link>
+                        <Link
+                            href="/prototype4"
+                            className="primary-button"
+                        >
+                            Prototype 4
                         </Link>
                     </div>
                 </div>
