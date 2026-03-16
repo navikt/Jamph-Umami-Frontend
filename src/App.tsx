@@ -29,6 +29,11 @@ const ScrollToTopWrapper = () => {
 const PageLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isBare = location.pathname === "/ai-bygger" || location.pathname === "/widget";
+
+  if (isBare) {
+    return <>{children}</>;
+  }
 
   if (isHome) {
     return <main style={{ width: "100%" }}>{children}</main>;
@@ -39,6 +44,29 @@ const PageLayout = ({ children }: { children: React.ReactNode }) => {
       {children}
     </Page.Block>
   );
+};
+
+const AppShell = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const isBare = location.pathname === "/ai-bygger" || location.pathname === "/widget";
+
+  if (isBare) {
+    return <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>{children}</div>;
+  }
+
+  return (
+    <Page>
+      <Header />
+      <PageLayout>{children}</PageLayout>
+      <ScrollToTopWrapper />
+    </Page>
+  );
+};
+
+const FooterWrapper = () => {
+  const location = useLocation();
+  if (location.pathname === '/ai-bygger' || location.pathname === '/widget') return null;
+  return <Footer />;
 };
 
 function App() {
@@ -66,22 +94,16 @@ function App() {
   });
 
   return (
-    <>
-      <Page>
-        <Header />
-        <Router>
-          <PageLayout>
-            <Routes>
-              {routes.map(({ path, component }) => (
-                <Route key={path} path={path} element={component} />
-              ))}
-            </Routes>
-            <ScrollToTopWrapper />
-          </PageLayout>
-        </Router>
-      </Page>
-      <Footer />
-    </>
+    <Router>
+      <AppShell>
+        <Routes>
+          {routes.map(({ path, component }) => (
+            <Route key={path} path={path} element={component} />
+          ))}
+        </Routes>
+      </AppShell>
+      <FooterWrapper />
+    </Router>
   );
 }
 

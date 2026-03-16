@@ -1,13 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Heading, Button, Alert, Tabs, Search, Switch, ReadMore, CopyButton } from '@navikt/ds-react';
-import { PlayIcon, Download, ArrowUpDown, ArrowUp, ArrowDown, Share2, ExternalLink } from 'lucide-react';
-import { utils as XLSXUtils, write as XLSXWrite } from 'xlsx';
+import { Heading, Button, Alert, Tabs, Search, Switch } from '@navikt/ds-react';
+import { PlayIcon, ArrowUpDown, ArrowUp, ArrowDown, ExternalLink } from 'lucide-react';
 import { LineChart, ILineChartProps, VerticalBarChart, IVerticalBarChartProps, IVerticalBarChartDataPoint, AreaChart, PieChart, ResponsiveContainer } from '@fluentui/react-charting';
 import { translateValue } from '../../../lib/translations';
 import SqlViewer from './SqlViewer';
 import ShareResultsModal from './ShareResultsModal';
+import DownloadResultsModal from './DownloadResultsModal';
 import AnalysisActionModal from '../../analysis/AnalysisActionModal';
-import { encode } from '@toon-format/toon';
 
 interface ResultsPanelProps {
   result: any;
@@ -31,6 +30,13 @@ interface ResultsPanelProps {
   // Optional props for AnalysisActionModal
   websiteId?: string;
   period?: string;
+  hideInternalShareButton?: boolean;
+  hideInternalDownloadButton?: boolean;
+  fixedAspect?: boolean;
+  hideTabsList?: boolean;
+  hideControls?: boolean;
+  externalTab?: string;
+  onExternalTabChange?: (tab: string) => void;
 }
 
 const ResultsPanel = ({
@@ -54,6 +60,13 @@ const ResultsPanel = ({
   showCost = false,
   websiteId,
   period,
+  hideInternalShareButton = false,
+  hideInternalDownloadButton = false,
+  fixedAspect = false,
+  hideTabsList = false,
+  hideControls = false,
+  externalTab,
+  onExternalTabChange,
 }: ResultsPanelProps) => {
   // Read initial tab from URL parameter
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -70,6 +83,7 @@ const ResultsPanel = ({
   const [showAverage, setShowAverage] = useState<boolean>(false);
   const [isPercentageStacked, setIsPercentageStacked] = useState<boolean>(false);
   const [showShareModal, setShowShareModal] = useState<boolean>(false);
+  const [showDownloadModal, setShowDownloadModal] = useState<boolean>(false);
   const [rowLimit] = useState<number>(5000); // Limit rows for performance
   const [showAllRows, setShowAllRows] = useState<boolean>(false);
   const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
@@ -262,7 +276,7 @@ const ResultsPanel = ({
                     return (
                       <td
                         key={cellIdx}
-                        className={`px-4 py-2 whitespace-nowrap text-sm ${clickable ? 'cursor-pointer' : 'text-gray-900'}`}
+                        className={`px-4 py-2 text-sm ${clickable ? 'cursor-pointer' : 'text-gray-900'}`}
                         onClick={clickable ? () => setSelectedUrl(value) : undefined}
                       >
                         {clickable ? (
@@ -284,139 +298,6 @@ const ResultsPanel = ({
     );
   }, [processedTableData, activeSearchQuery, result, sortColumn, sortDirection, handleSort, isClickablePath, setSelectedUrl]);
 
-  // Helper functions to generate content
-  const getCSVContent = () => {
-    if (!result || !result.data || result.data.length === 0) return '';
-    const headers = Object.keys(result.data[0]);
-    const csvRows = [
-      headers.join(','),
-      ...result.data.map((row: any) =>
-        headers
-          .map((header) => {
-            const value = row[header];
-            const translatedValue = translateValue(header, value);
-            const stringValue = translatedValue !== null && translatedValue !== undefined ? String(translatedValue) : '';
-            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-              return `"${stringValue.replace(/"/g, '""')}"`;
-            }
-            return stringValue;
-          })
-          .join(',')
-      ),
-    ];
-    return csvRows.join('\n');
-  };
-
-  const getJSONContent = () => {
-    if (!result || !result.data || result.data.length === 0) return '';
-    const translatedData = result.data.map((row: any) => {
-      const translatedRow: any = {};
-      Object.keys(row).forEach((key) => {
-        translatedRow[key] = translateValue(key, row[key]);
-      });
-      return translatedRow;
-    });
-    return JSON.stringify(translatedData, null, 2);
-  };
-
-  const getTOONContent = () => {
-    if (!result || !result.data || result.data.length === 0) return '';
-    const translatedData = result.data.map((row: any) => {
-      const translatedRow: any = {};
-      Object.keys(row).forEach((key) => {
-        translatedRow[key] = translateValue(key, row[key]);
-      });
-      return translatedRow;
-    });
-    return encode(translatedData);
-  };
-
-  // Function to convert results to CSV
-  const downloadCSV = () => {
-    const csvContent = getCSVContent();
-    if (!csvContent) return;
-
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel compatibility
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `query_results_${new Date().toISOString().slice(0, 10)}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Function to convert results to a real XLSX file
-  const downloadExcel = () => {
-    if (!result || !result.data || result.data.length === 0) return;
-
-    const headers = Object.keys(result.data[0]);
-    const worksheetData = [
-      headers,
-      ...result.data.map((row: any) =>
-        headers.map((header) => {
-          const value = row[header];
-          const translatedValue = translateValue(header, value);
-          return translatedValue !== null && translatedValue !== undefined ? translatedValue : '';
-        })
-      ),
-    ];
-
-    const worksheet = XLSXUtils.aoa_to_sheet(worksheetData);
-    const workbook = XLSXUtils.book_new();
-    XLSXUtils.book_append_sheet(workbook, worksheet, 'Query Results');
-
-    const wbout = XLSXWrite(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([wbout], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `query_results_${new Date().toISOString().slice(0, 10)}.xlsx`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  // Function to convert results to JSON
-  const downloadJSON = () => {
-    const jsonContent = getJSONContent();
-    if (!jsonContent) return;
-
-    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `query_results_${new Date().toISOString().slice(0, 10)}.json`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  // Function to convert results to TOON (Token-Oriented Object Notation)
-  const downloadTOON = () => {
-    const toonContent = getTOONContent();
-    if (!toonContent) return;
-
-    const blob = new Blob([toonContent], { type: 'text/plain;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `query_results_${new Date().toISOString().slice(0, 10)}.toon`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   const getContainerClass = () => {
     switch (containerStyle) {
       case 'white':
@@ -430,9 +311,11 @@ const ResultsPanel = ({
   };
 
   const containerClass = getContainerClass();
+  const compact = containerStyle === 'none';
+  const tabPanelClass = compact ? '' : (fixedAspect ? 'pt-2' : 'pt-4 h-[500px]');
 
   return (
-    <div className="space-y-2 mb-6">
+    <div className={compact ? '' : 'space-y-2 mb-6'}>
       {!hideHeading && <Heading level="2" size="small">Vis resultater</Heading>}
 
       <div className={containerClass}>
@@ -490,20 +373,22 @@ const ResultsPanel = ({
 
         {/* Results Display */}
         {result && result.data && result.data.length > 0 && (
-          <div className="mt-2 space-y-3">
+          <div className={compact ? '' : 'mt-2 space-y-3'}>
             {/* Tabbed Display */}
-            <Tabs value={activeTab} onChange={handleTabChange}>
-              <Tabs.List>
-                {!hiddenTabs.includes('table') && <Tabs.Tab value="table" label="Tabell" />}
-                {!hiddenTabs.includes('linechart') && <Tabs.Tab value="linechart" label="Linje" />}
-                {!hiddenTabs.includes('areachart') && <Tabs.Tab value="areachart" label="Område" />}
-                {!hiddenTabs.includes('barchart') && <Tabs.Tab value="barchart" label="Stolpe" />}
-                {!hiddenTabs.includes('piechart') && <Tabs.Tab value="piechart" label="Kake" />}
-              </Tabs.List>
+            <Tabs value={externalTab ?? activeTab} onChange={(tab) => { if (onExternalTabChange) onExternalTabChange(tab); else handleTabChange(tab); }}>
+              {!hideTabsList && (
+                <Tabs.List>
+                  {!hiddenTabs.includes('table') && <Tabs.Tab value="table" label="Tabell" />}
+                  {!hiddenTabs.includes('linechart') && <Tabs.Tab value="linechart" label="Linje" />}
+                  {!hiddenTabs.includes('areachart') && <Tabs.Tab value="areachart" label="Område" />}
+                  {!hiddenTabs.includes('barchart') && <Tabs.Tab value="barchart" label="Stolpe" />}
+                  {!hiddenTabs.includes('piechart') && <Tabs.Tab value="piechart" label="Kake" />}
+                </Tabs.List>
+              )}
 
               {/* Table Tab */}
-              <Tabs.Panel value="table" className="pt-4">
-                <div className="space-y-3">
+              <Tabs.Panel value="table" className={tabPanelClass}>
+                <div className="space-y-3" style={fixedAspect ? { width: '100%', height: '100%', overflowY: 'auto' } : {}}>
                   <div className="border rounded-lg overflow-hidden bg-white">
                     {/* Search Input */}
                     <div className="p-3 bg-gray-50 border-b space-y-2">
@@ -616,8 +501,8 @@ const ResultsPanel = ({
               </Tabs.Panel>
 
               {/* Line Chart Tab */}
-              <Tabs.Panel value="linechart" className="pt-4">
-                <div className="border rounded-lg bg-white p-4">
+              <Tabs.Panel value="linechart" className={tabPanelClass}>
+                <div className={compact ? '' : 'border rounded-lg bg-white p-4'} style={compact ? { width: '100%', height: '100%' } : fixedAspect ? { width: '100%', height: '100%', overflowY: 'auto' } : {}}>
                   {(() => {
                     const chartData = prepareLineChartData(showAverage);
                     console.log('Line Chart Data:', chartData);
@@ -631,17 +516,19 @@ const ResultsPanel = ({
                       );
                     }
                     return (
-                      <div style={{ overflow: 'visible' }}>
-                        <div className="mb-3">
-                          <Switch
-                            checked={showAverage}
-                            onChange={(e) => setShowAverage(e.target.checked)}
-                            size="small"
-                          >
-                            Vis gjennomsnitt
-                          </Switch>
-                        </div>
-                        <div style={{ width: '100%', height: '400px' }}>
+                      <div style={{ overflow: compact ? 'hidden' : 'visible', height: compact ? '100%' : undefined, display: compact ? 'flex' : undefined, flexDirection: compact ? 'column' : undefined }}>
+                        {!hideControls && (
+                          <div className="mb-3">
+                            <Switch
+                              checked={showAverage}
+                              onChange={(e) => setShowAverage(e.target.checked)}
+                              size="small"
+                            >
+                              Vis gjennomsnitt
+                            </Switch>
+                          </div>
+                        )}
+                        <div style={{ width: '100%', height: compact ? '100%' : '400px', flex: compact ? '1 1 0' : undefined }}>
                           <ResponsiveContainer>
                             <LineChart
                               data={chartData.data}
@@ -663,8 +550,8 @@ const ResultsPanel = ({
               </Tabs.Panel>
 
               {/* Area Chart Tab */}
-              <Tabs.Panel value="areachart" className="pt-4">
-                <div className="border rounded-lg bg-white p-4">
+              <Tabs.Panel value="areachart" className={tabPanelClass}>
+                <div className={compact ? '' : 'border rounded-lg bg-white p-4'} style={compact ? { width: '100%', height: '100%' } : fixedAspect ? { width: '100%', height: '100%', overflowY: 'auto' } : {}}>
                   {(() => {
                     const baseChartData = prepareLineChartData(false);
 
@@ -732,7 +619,7 @@ const ResultsPanel = ({
                             </Switch>
                           </div>
                         )}
-                        <div style={{ width: '100%', height: '400px' }}>
+                          <div style={{ width: '100%', height: compact ? '100%' : '400px' }}>
                           <ResponsiveContainer>
                             <AreaChart
                               data={chartData.data}
@@ -756,31 +643,19 @@ const ResultsPanel = ({
               </Tabs.Panel>
 
               {/* Bar Chart Tab */}
-              <Tabs.Panel value="barchart" className="pt-4">
-                <div className="border rounded-lg bg-white p-4">
+              <Tabs.Panel value="barchart" className={tabPanelClass}>
+                <div className={compact ? '' : 'border rounded-lg bg-white p-4'} style={compact ? { width: '100%', height: '100%' } : fixedAspect ? { width: '100%', height: '100%', overflowY: 'auto' } : {}}>
                   {(() => {
                     const chartData = prepareBarChartData();
                     console.log('Bar Chart Data:', chartData);
-                    // Check if too many items
                     let displayData: IVerticalBarChartDataPoint[] = [];
-                    let limitMessage = null;
 
                     if (chartData && Array.isArray(chartData.data)) {
                       if (chartData.data.length > 12) {
                         const top11 = chartData.data.slice(0, 11);
                         const others = chartData.data.slice(11);
                         const otherSum = others.reduce((sum, item) => sum + (item.y as number), 0);
-
-                        displayData = [
-                          ...top11,
-                          { x: 'Andre', y: otherSum }
-                        ];
-
-                        limitMessage = (
-                          <Alert variant="info" className="mb-4">
-                            Viser topp 11 kategorier, pluss "Andre" som samler de resterende {others.length} kategoriene.
-                          </Alert>
-                        );
+                        displayData = [...top11, { x: 'Andre', y: otherSum }];
                       } else {
                         displayData = chartData.data;
                       }
@@ -807,7 +682,6 @@ const ResultsPanel = ({
                     }
                     return (
                       <div className="w-full">
-                        {limitMessage}
                         <div className="overflow-y-auto max-h-[500px]" style={{ overflow: 'visible' }}>
                           <style>{`
                             .bar-chart-hide-xaxis .ms-Chart-xAxis text,
@@ -836,31 +710,19 @@ const ResultsPanel = ({
               </Tabs.Panel>
 
               {/* Pie Chart Tab */}
-              <Tabs.Panel value="piechart" className="pt-4">
-                <div className="border rounded-lg bg-white p-4">
+              <Tabs.Panel value="piechart" className={tabPanelClass}>
+                <div className={compact ? '' : 'border rounded-lg bg-white p-4'} style={compact ? { width: '100%', height: '100%' } : fixedAspect ? { width: '100%', height: '100%', overflowY: 'auto' } : {}}>
                   {(() => {
                     const chartData = preparePieChartData();
                     console.log('Pie Chart Data:', chartData);
-                    // Check if too many items
                     let displayData: any[] = [];
-                    let limitMessage = null;
 
                     if (chartData && Array.isArray(chartData.data)) {
                       if (chartData.data.length > 12) {
                         const top11 = chartData.data.slice(0, 11);
                         const others = chartData.data.slice(11);
                         const otherSum = others.reduce((sum, item) => sum + (item.y as number), 0);
-
-                        displayData = [
-                          ...top11,
-                          { x: 'Andre', y: otherSum }
-                        ];
-
-                        limitMessage = (
-                          <Alert variant="info" className="mb-4">
-                            Viser topp 11 kategorier, pluss "Andre" som samler de resterende {others.length} kategoriene.
-                          </Alert>
-                        );
+                        displayData = [...top11, { x: 'Andre', y: otherSum }];
                       } else {
                         displayData = chartData.data;
                       }
@@ -886,7 +748,6 @@ const ResultsPanel = ({
 
                     return (
                       <div>
-                        {limitMessage}
                         <div className="flex flex-col items-center">
                           <style>{`
                             /* Make the labels transparent but keep them for hover functionality */
@@ -950,82 +811,14 @@ const ResultsPanel = ({
             </Tabs>
 
             {/* Download Options */}
-            <div className="pt-2">
-              <ReadMore header="Last ned resultater">
-                <div className="space-y-4 mt-2">
-                  {/* Download Section */}
-                  <div>
-                    <div className="flex gap-2 flex-wrap items-center">
-                      <Button
-                        onClick={downloadCSV}
-                        variant="secondary"
-                        size="small"
-                        icon={<Download size={16} />}
-                      >
-                        CSV
-                      </Button>
-
-                      <Button
-                        onClick={downloadExcel}
-                        variant="secondary"
-                        size="small"
-                        icon={<Download size={16} />}
-                      >
-                        Excel
-                      </Button>
-
-                      <Button
-                        onClick={downloadJSON}
-                        variant="secondary"
-                        size="small"
-                        icon={<Download size={16} />}
-                      >
-                        JSON
-                      </Button>
-
-                      <Button
-                        onClick={downloadTOON}
-                        variant="secondary"
-                        size="small"
-                        icon={<Download size={16} />}
-                      >
-                        TOON
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Copy Section */}
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">Eller kopier dem:</p>
-                    <div className="flex gap-2 flex-wrap items-center">
-                      <CopyButton
-                        copyText={getCSVContent()}
-                        text="CSV"
-                        activeText="CSV kopiert!"
-                        size="small"
-                        variant="action"
-                      />
-
-                      <CopyButton
-                        copyText={getJSONContent()}
-                        text="JSON"
-                        activeText="JSON kopiert!"
-                        size="small"
-                        variant="action"
-                      />
-
-                      <CopyButton
-                        copyText={getTOONContent()}
-                        text="TOON"
-                        activeText="TOON kopiert!"
-                        size="small"
-                        variant="action"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </ReadMore>
-            </div>
+            {!hideInternalDownloadButton && (
+              <div className="pt-2">
+                <Button variant="secondary" size="small" onClick={() => setShowDownloadModal(true)}>
+                  Last ned resultater
+                </Button>
+                <DownloadResultsModal result={result} open={showDownloadModal} onClose={() => setShowDownloadModal(false)} />
+              </div>
+            )}
 
             {/* SQL Code Display */}
             {showSqlCode && sql && (
@@ -1033,13 +826,12 @@ const ResultsPanel = ({
             )}
 
             {/* Share Button */}
-            {sql && result && result.data && result.data.length > 0 && (
-              <div className="mt-3 flex justify-end">
+            {!hideInternalShareButton && sql && result && result.data && result.data.length > 0 && (
+              <div className="mt-3 flex justify-end gap-2">
                 <Button
                   onClick={() => setShowShareModal(true)}
                   variant="secondary"
                   size="small"
-                  icon={<Share2 size={18} />}
                 >
                   Del tabell & graf
                 </Button>

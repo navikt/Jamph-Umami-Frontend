@@ -8,6 +8,7 @@ interface DashboardLayoutProps {
     description?: string;
     filters?: React.ReactNode;
     children: React.ReactNode;
+    hideHeader?: boolean;
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -15,10 +16,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     subtitle,
     description,
     filters,
-    children
+    children,
+    hideHeader = false
 }) => {
     return (
         <div className="py-8 max-w-[76.5rem] mx-auto w-full">
+            {!hideHeader && (
             <div className="mb-8">
                 <div className="flex flex-col gap-1">
                     <Heading level="1" size="xlarge">
@@ -36,6 +39,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     </BodyShort>
                 )}
             </div>
+            )}
 
             {filters && (
                 <div className="flex flex-wrap items-end gap-4 p-4 mb-8 bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm transition-all">
