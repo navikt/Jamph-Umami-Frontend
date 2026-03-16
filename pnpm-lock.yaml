@@ -26,6 +26,9 @@ importers:
       express:
         specifier: ^5.2.1
         version: 5.2.1
+      html-to-image:
+        specifier: ^1.11.13
+        version: 1.11.13
       path:
         specifier: ^0.12.7
         version: 0.12.7
@@ -615,6 +618,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@8.7.0':
     resolution: {integrity: sha512-J/ResgmF2WfjcDOoj/55Ero2Wfv1UZSxh+n/wpcnjAH+iEHhE/imPV042OLXi1/DLwcXUxkEg23gk7uHojTfKg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.7.0/99ec8b29ec7dbf154362952f78a512234c7a3ec3}
@@ -1719,6 +1725,9 @@ packages:
 
   html-entities@2.6.0:
     resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+
+  html-to-image@1.11.13:
+    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
 
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
@@ -3128,11 +3137,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@navikt/aksel-icons': 8.7.0
       '@navikt/ds-tokens': 8.7.0
-      '@types/react': 19.2.14
       date-fns: 4.1.0
       react: 19.2.4
       react-day-picker: 9.7.0(react@19.2.4)
       react-dom: 19.2.4(react@19.2.4)
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   '@navikt/ds-tailwind@8.7.0': {}
 
@@ -4177,6 +4187,8 @@ snapshots:
   hookable@6.0.1: {}
 
   html-entities@2.6.0: {}
+
+  html-to-image@1.11.13: {}
 
   http-errors@2.0.1:
     dependencies:
