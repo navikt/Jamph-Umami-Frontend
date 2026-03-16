@@ -72,6 +72,7 @@ export default function PinnedGrid({ widgets, onReorder, onDelete, onEdit, onRes
     return (
         <>
             <div
+                data-pinned-grid
                 className="grid grid-cols-2 gap-0"
                 onDragOver={(e) => { if (e.dataTransfer.types.includes('application/aibygger')) { e.preventDefault(); setExternalOver(true); } }}
                 onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setExternalOver(false); }}

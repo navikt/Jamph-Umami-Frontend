@@ -5,6 +5,7 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { getDashboard } from "../../data/dashboard";
 import { normalizeUrlToPath } from "../../lib/utils";
 import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
+import GuidedTour from "../../components/GuidedTour";
 import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
 import FilterBar from "../../components/dashboard/FilterBar";
 import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
@@ -96,6 +97,7 @@ const Prototype3 = () => {
     const [widgetOrder, setWidgetOrder] = useState<string[]>(DEFAULT_WIDGETS.map(w => w.id));
     const [editingWidget, setEditingWidget] = useState<{ sql: string; chartType: string; title: string; aiPrompt?: string; result?: any } | null>(null);
     const [aiByggerOpen, setAiByggerOpen] = useState(false);
+    const [tourActive, setTourActive] = useState(true);
 
     const [activeFilters, setActiveFilters] = useState({
         pathOperator: defaultPathOperator,
@@ -321,6 +323,7 @@ const Prototype3 = () => {
     };
 
     return (
+        <>
         <DashboardLayout
             title={`Prototype 3 – ${dashboard.title}`}
             description={dashboard.description}
@@ -410,6 +413,8 @@ const Prototype3 = () => {
                 </div>
             )}
         </DashboardLayout>
+        <GuidedTour active={tourActive} onClose={() => setTourActive(false)} />
+        </>
     );
 };
 
