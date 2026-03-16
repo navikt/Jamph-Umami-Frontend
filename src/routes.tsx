@@ -12,7 +12,6 @@ import MetabaseGuide from "./pages/articles/MetabaseGuide.tsx";
 
 import SqlEditor from "./pages/analysis/SqlEditor.tsx";
 import AiChartBuilder from "./pages/analysis/AiChartBuilderNew.tsx";
-import Prototype2 from "./pages/analysis/Prototype2.tsx";
 import Prototype3 from "./pages/analysis/Prototype3.tsx";
 import Prototype4 from "./pages/analysis/Prototype4.tsx";
 import AiBygger from "./pages/analysis/AiBygger.tsx";
@@ -48,7 +47,6 @@ const routes = [
     { path: "/taksonomi", component: <Taksonomi /> },
     { path: "/grafbygger", component: <Charts /> },
     { path: "/ai-builder", component: <AiChartBuilder /> },
-    { path: "/prototype2", component: <Prototype2 /> },
     { path: "/prototype3", component: <Prototype3 /> },
     { path: "/prototype4", component: <Prototype4 /> },
     { path: "/ai-bygger", component: <AiBygger /> },
