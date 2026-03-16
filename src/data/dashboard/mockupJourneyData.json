@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    { "id": "/", "label": "/", "step": 0 },
+    { "id": "/komponenter", "label": "/komponenter", "step": 1 },
+    { "id": "/god-praksis", "label": "/god-praksis", "step": 1 },
+    { "id": "/monstre", "label": "/monstre", "step": 1 },
+    { "id": "/ikoner", "label": "/ikoner", "step": 1 },
+    { "id": "/blogg", "label": "/blogg", "step": 1 },
+    { "id": "/komponenter/button", "label": "/komponenter/button", "step": 2 },
+    { "id": "/komponenter/input", "label": "/komponenter/input", "step": 2 },
+    { "id": "/komponenter/modal", "label": "/komponenter/modal", "step": 2 },
+    { "id": "/god-praksis/tilgjengelighet", "label": "/god-praksis/tilgjengelighet", "step": 2 },
+    { "id": "/god-praksis/farger", "label": "/god-praksis/farger", "step": 2 }
+  ],
+  "links": [
+    { "source": "/", "target": "/komponenter", "value": 1842 },
+    { "source": "/", "target": "/god-praksis", "value": 743 },
+    { "source": "/", "target": "/monstre", "value": 412 },
+    { "source": "/", "target": "/ikoner", "value": 389 },
+    { "source": "/", "target": "/blogg", "value": 201 },
+    { "source": "/komponenter", "target": "/komponenter/button", "value": 634 },
+    { "source": "/komponenter", "target": "/komponenter/input", "value": 421 },
+    { "source": "/komponenter", "target": "/komponenter/modal", "value": 287 },
+    { "source": "/god-praksis", "target": "/god-praksis/tilgjengelighet", "value": 318 },
+    { "source": "/god-praksis", "target": "/god-praksis/farger", "value": 214 }
+  ]
+}

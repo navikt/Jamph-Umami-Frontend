@@ -13,6 +13,8 @@ import UmamiJourneyView from './journey/UmamiJourneyView';
 import DashboardStatCards from '../dashboard/DashboardStatCards';
 import DashboardKIForklaring from '../dashboard/DashboardKIForklaring';
 import { WIDGET_SIZES } from '../../lib/widgetSizes';
+import mockupExampleResults from '../../data/dashboard/mockupExampleResults.json';
+import mockupJourneyData from '../../data/dashboard/mockupJourneyData.json';
 
 const defaultQuery = `SELECT
   website_id,
@@ -1090,13 +1092,23 @@ ORDER BY term`;
                             setAiPrompt(item.prompt);
                             setCurrentExplanation((item as any).explanation ?? null);
                             if ((item as any).apiOnly) {
+                                // Use pre-fetched journey mockup data
+                                const jd = mockupJourneyData as { nodes: any[]; links: any[] };
+                                if (jd.nodes.length > 0) setJourneyData(jd);
                                 setP2Tab(order[0] ?? 'stegvisning');
                                 setStep(2);
                             } else {
                                 setQuery(item.sql);
-                                setResult(null);
+                                // Use pre-fetched mockup result if available
+                                const mockRows = (mockupExampleResults as Record<string, any[]>)[String(selectedTidligere)];
+                                if (mockRows) {
+                                    setResult({ success: true, data: mockRows, rowCount: mockRows.length });
+                                    shouldAutoExecuteRef.current = false;
+                                } else {
+                                    setResult(null);
+                                    shouldAutoExecuteRef.current = true;
+                                }
                                 setP2Tab(order[0] ?? 'table');
-                                shouldAutoExecuteRef.current = true;
                                 setStep(2);
                             }
                             setTidligereOpen(false);
