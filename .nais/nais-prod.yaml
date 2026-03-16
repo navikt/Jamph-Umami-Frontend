@@ -26,10 +26,3 @@ spec:
     cpuThresholdPercentage: 80
   ingresses:
     - https://jamph.ansatt.nav.no
-  azure:
-    application:
-      enabled: true
-      allowAllUsers: true
-    sidecar:
-      autoLogin: true
-      enabled: true
