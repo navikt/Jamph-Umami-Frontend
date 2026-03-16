@@ -1,0 +1,1508 @@
+{
+  "default-1": [
+    {
+      "kategori": "Utførte handlinger",
+      "sesjoner": 4691
+    },
+    {
+      "kategori": "Forlot nettstedet",
+      "sesjoner": 1853
+    },
+    {
+      "kategori": "Navigering uten handling",
+      "sesjoner": 1684
+    },
+    {
+      "kategori": "Unike besøkende",
+      "sesjoner": 8228
+    }
+  ],
+  "default-2": [
+    {
+      "dato": "2025-03-03",
+      "sidevisninger": 31
+    },
+    {
+      "dato": "2025-03-04",
+      "sidevisninger": 454
+    },
+    {
+      "dato": "2025-03-05",
+      "sidevisninger": 615
+    },
+    {
+      "dato": "2025-03-06",
+      "sidevisninger": 1151
+    },
+    {
+      "dato": "2025-03-07",
+      "sidevisninger": 687
+    },
+    {
+      "dato": "2025-03-08",
+      "sidevisninger": 120
+    },
+    {
+      "dato": "2025-03-09",
+      "sidevisninger": 208
+    },
+    {
+      "dato": "2025-03-10",
+      "sidevisninger": 1251
+    },
+    {
+      "dato": "2025-03-11",
+      "sidevisninger": 917
+    },
+    {
+      "dato": "2025-03-12",
+      "sidevisninger": 767
+    },
+    {
+      "dato": "2025-03-13",
+      "sidevisninger": 889
+    },
+    {
+      "dato": "2025-03-14",
+      "sidevisninger": 604
+    },
+    {
+      "dato": "2025-03-15",
+      "sidevisninger": 207
+    },
+    {
+      "dato": "2025-03-16",
+      "sidevisninger": 65
+    },
+    {
+      "dato": "2025-03-17",
+      "sidevisninger": 1105
+    },
+    {
+      "dato": "2025-03-18",
+      "sidevisninger": 1296
+    },
+    {
+      "dato": "2025-03-19",
+      "sidevisninger": 888
+    },
+    {
+      "dato": "2025-03-20",
+      "sidevisninger": 1126
+    },
+    {
+      "dato": "2025-03-21",
+      "sidevisninger": 846
+    },
+    {
+      "dato": "2025-03-22",
+      "sidevisninger": 57
+    },
+    {
+      "dato": "2025-03-23",
+      "sidevisninger": 76
+    },
+    {
+      "dato": "2025-03-24",
+      "sidevisninger": 1020
+    },
+    {
+      "dato": "2025-03-25",
+      "sidevisninger": 1063
+    },
+    {
+      "dato": "2025-03-26",
+      "sidevisninger": 1196
+    },
+    {
+      "dato": "2025-03-27",
+      "sidevisninger": 1187
+    },
+    {
+      "dato": "2025-03-28",
+      "sidevisninger": 684
+    },
+    {
+      "dato": "2025-03-29",
+      "sidevisninger": 39
+    },
+    {
+      "dato": "2025-03-30",
+      "sidevisninger": 62
+    },
+    {
+      "dato": "2025-03-31",
+      "sidevisninger": 693
+    },
+    {
+      "dato": "2025-04-01",
+      "sidevisninger": 852
+    },
+    {
+      "dato": "2025-04-02",
+      "sidevisninger": 843
+    },
+    {
+      "dato": "2025-04-03",
+      "sidevisninger": 996
+    },
+    {
+      "dato": "2025-04-04",
+      "sidevisninger": 1042
+    },
+    {
+      "dato": "2025-04-05",
+      "sidevisninger": 65
+    },
+    {
+      "dato": "2025-04-06",
+      "sidevisninger": 182
+    },
+    {
+      "dato": "2025-04-07",
+      "sidevisninger": 1091
+    },
+    {
+      "dato": "2025-04-08",
+      "sidevisninger": 1177
+    },
+    {
+      "dato": "2025-04-09",
+      "sidevisninger": 1311
+    },
+    {
+      "dato": "2025-04-10",
+      "sidevisninger": 935
+    },
+    {
+      "dato": "2025-04-11",
+      "sidevisninger": 610
+    },
+    {
+      "dato": "2025-04-12",
+      "sidevisninger": 66
+    },
+    {
+      "dato": "2025-04-13",
+      "sidevisninger": 109
+    },
+    {
+      "dato": "2025-04-14",
+      "sidevisninger": 696
+    },
+    {
+      "dato": "2025-04-15",
+      "sidevisninger": 400
+    },
+    {
+      "dato": "2025-04-16",
+      "sidevisninger": 352
+    },
+    {
+      "dato": "2025-04-17",
+      "sidevisninger": 39
+    },
+    {
+      "dato": "2025-04-18",
+      "sidevisninger": 17
+    },
+    {
+      "dato": "2025-04-19",
+      "sidevisninger": 40
+    },
+    {
+      "dato": "2025-04-20",
+      "sidevisninger": 60
+    },
+    {
+      "dato": "2025-04-21",
+      "sidevisninger": 23
+    },
+    {
+      "dato": "2025-04-22",
+      "sidevisninger": 856
+    },
+    {
+      "dato": "2025-04-23",
+      "sidevisninger": 1600
+    },
+    {
+      "dato": "2025-04-24",
+      "sidevisninger": 2468
+    },
+    {
+      "dato": "2025-04-25",
+      "sidevisninger": 704
+    },
+    {
+      "dato": "2025-04-26",
+      "sidevisninger": 28
+    },
+    {
+      "dato": "2025-04-27",
+      "sidevisninger": 14
+    },
+    {
+      "dato": "2025-04-28",
+      "sidevisninger": 884
+    },
+    {
+      "dato": "2025-04-29",
+      "sidevisninger": 892
+    },
+    {
+      "dato": "2025-04-30",
+      "sidevisninger": 527
+    },
+    {
+      "dato": "2025-05-01",
+      "sidevisninger": 1
+    },
+    {
+      "dato": "2025-05-02",
+      "sidevisninger": 22
+    },
+    {
+      "dato": "2025-05-05",
+      "sidevisninger": 20
+    },
+    {
+      "dato": "2025-05-06",
+      "sidevisninger": 504
+    },
+    {
+      "dato": "2025-05-07",
+      "sidevisninger": 1459
+    },
+    {
+      "dato": "2025-05-08",
+      "sidevisninger": 1209
+    },
+    {
+      "dato": "2025-05-09",
+      "sidevisninger": 1358
+    },
+    {
+      "dato": "2025-05-10",
+      "sidevisninger": 42
+    },
+    {
+      "dato": "2025-05-11",
+      "sidevisninger": 104
+    },
+    {
+      "dato": "2025-05-12",
+      "sidevisninger": 873
+    },
+    {
+      "dato": "2025-05-13",
+      "sidevisninger": 1432
+    },
+    {
+      "dato": "2025-05-14",
+      "sidevisninger": 898
+    },
+    {
+      "dato": "2025-05-15",
+      "sidevisninger": 919
+    },
+    {
+      "dato": "2025-05-16",
+      "sidevisninger": 542
+    },
+    {
+      "dato": "2025-05-17",
+      "sidevisninger": 22
+    },
+    {
+      "dato": "2025-05-18",
+      "sidevisninger": 32
+    },
+    {
+      "dato": "2025-05-19",
+      "sidevisninger": 953
+    },
+    {
+      "dato": "2025-05-20",
+      "sidevisninger": 708
+    },
+    {
+      "dato": "2025-05-21",
+      "sidevisninger": 691
+    },
+    {
+      "dato": "2025-05-22",
+      "sidevisninger": 754
+    },
+    {
+      "dato": "2025-05-23",
+      "sidevisninger": 647
+    },
+    {
+      "dato": "2025-05-24",
+      "sidevisninger": 83
+    },
+    {
+      "dato": "2025-05-25",
+      "sidevisninger": 162
+    },
+    {
+      "dato": "2025-05-26",
+      "sidevisninger": 1295
+    },
+    {
+      "dato": "2025-05-27",
+      "sidevisninger": 1236
+    },
+    {
+      "dato": "2025-05-28",
+      "sidevisninger": 997
+    },
+    {
+      "dato": "2025-05-29",
+      "sidevisninger": 356
+    },
+    {
+      "dato": "2025-05-30",
+      "sidevisninger": 674
+    },
+    {
+      "dato": "2025-05-31",
+      "sidevisninger": 62
+    },
+    {
+      "dato": "2025-06-01",
+      "sidevisninger": 216
+    },
+    {
+      "dato": "2025-06-02",
+      "sidevisninger": 1168
+    },
+    {
+      "dato": "2025-06-03",
+      "sidevisninger": 1479
+    },
+    {
+      "dato": "2025-06-04",
+      "sidevisninger": 1450
+    },
+    {
+      "dato": "2025-06-05",
+      "sidevisninger": 1053
+    },
+    {
+      "dato": "2025-06-06",
+      "sidevisninger": 1089
+    },
+    {
+      "dato": "2025-06-07",
+      "sidevisninger": 52
+    },
+    {
+      "dato": "2025-06-08",
+      "sidevisninger": 53
+    },
+    {
+      "dato": "2025-06-09",
+      "sidevisninger": 114
+    },
+    {
+      "dato": "2025-06-10",
+      "sidevisninger": 1200
+    },
+    {
+      "dato": "2025-06-11",
+      "sidevisninger": 691
+    },
+    {
+      "dato": "2025-06-12",
+      "sidevisninger": 467
+    },
+    {
+      "dato": "2025-06-13",
+      "sidevisninger": 747
+    },
+    {
+      "dato": "2025-06-14",
+      "sidevisninger": 10
+    },
+    {
+      "dato": "2025-06-15",
+      "sidevisninger": 22
+    },
+    {
+      "dato": "2025-06-16",
+      "sidevisninger": 810
+    },
+    {
+      "dato": "2025-06-20",
+      "sidevisninger": 467
+    },
+    {
+      "dato": "2025-06-21",
+      "sidevisninger": 127
+    },
+    {
+      "dato": "2025-06-22",
+      "sidevisninger": 59
+    },
+    {
+      "dato": "2025-06-23",
+      "sidevisninger": 1346
+    },
+    {
+      "dato": "2025-06-24",
+      "sidevisninger": 870
+    },
+    {
+      "dato": "2025-06-25",
+      "sidevisninger": 782
+    },
+    {
+      "dato": "2025-06-26",
+      "sidevisninger": 1598
+    },
+    {
+      "dato": "2025-06-27",
+      "sidevisninger": 1026
+    },
+    {
+      "dato": "2025-06-28",
+      "sidevisninger": 130
+    },
+    {
+      "dato": "2025-06-29",
+      "sidevisninger": 175
+    },
+    {
+      "dato": "2025-06-30",
+      "sidevisninger": 1225
+    },
+    {
+      "dato": "2025-07-01",
+      "sidevisninger": 1506
+    },
+    {
+      "dato": "2025-07-02",
+      "sidevisninger": 1248
+    },
+    {
+      "dato": "2025-07-03",
+      "sidevisninger": 760
+    },
+    {
+      "dato": "2025-07-04",
+      "sidevisninger": 697
+    },
+    {
+      "dato": "2025-07-05",
+      "sidevisninger": 196
+    },
+    {
+      "dato": "2025-07-06",
+      "sidevisninger": 68
+    },
+    {
+      "dato": "2025-07-07",
+      "sidevisninger": 420
+    },
+    {
+      "dato": "2025-07-08",
+      "sidevisninger": 450
+    },
+    {
+      "dato": "2025-07-09",
+      "sidevisninger": 259
+    },
+    {
+      "dato": "2025-07-10",
+      "sidevisninger": 260
+    },
+    {
+      "dato": "2025-07-11",
+      "sidevisninger": 210
+    },
+    {
+      "dato": "2025-07-12",
+      "sidevisninger": 8
+    },
+    {
+      "dato": "2025-07-13",
+      "sidevisninger": 19
+    },
+    {
+      "dato": "2025-07-14",
+      "sidevisninger": 211
+    },
+    {
+      "dato": "2025-07-15",
+      "sidevisninger": 216
+    },
+    {
+      "dato": "2025-07-16",
+      "sidevisninger": 358
+    },
+    {
+      "dato": "2025-07-17",
+      "sidevisninger": 214
+    },
+    {
+      "dato": "2025-07-18",
+      "sidevisninger": 244
+    },
+    {
+      "dato": "2025-07-19",
+      "sidevisninger": 27
+    },
+    {
+      "dato": "2025-07-20",
+      "sidevisninger": 9
+    },
+    {
+      "dato": "2025-07-21",
+      "sidevisninger": 156
+    },
+    {
+      "dato": "2025-07-22",
+      "sidevisninger": 178
+    },
+    {
+      "dato": "2025-07-23",
+      "sidevisninger": 180
+    },
+    {
+      "dato": "2025-07-24",
+      "sidevisninger": 101
+    },
+    {
+      "dato": "2025-07-25",
+      "sidevisninger": 133
+    },
+    {
+      "dato": "2025-07-26",
+      "sidevisninger": 64
+    },
+    {
+      "dato": "2025-07-27",
+      "sidevisninger": 60
+    },
+    {
+      "dato": "2025-07-28",
+      "sidevisninger": 121
+    },
+    {
+      "dato": "2025-07-29",
+      "sidevisninger": 207
+    },
+    {
+      "dato": "2025-07-30",
+      "sidevisninger": 419
+    },
+    {
+      "dato": "2025-07-31",
+      "sidevisninger": 386
+    },
+    {
+      "dato": "2025-08-01",
+      "sidevisninger": 293
+    },
+    {
+      "dato": "2025-08-02",
+      "sidevisninger": 23
+    },
+    {
+      "dato": "2025-08-03",
+      "sidevisninger": 38
+    },
+    {
+      "dato": "2025-08-04",
+      "sidevisninger": 615
+    },
+    {
+      "dato": "2025-08-05",
+      "sidevisninger": 828
+    },
+    {
+      "dato": "2025-08-06",
+      "sidevisninger": 902
+    },
+    {
+      "dato": "2025-08-07",
+      "sidevisninger": 526
+    },
+    {
+      "dato": "2025-08-08",
+      "sidevisninger": 467
+    },
+    {
+      "dato": "2025-08-09",
+      "sidevisninger": 50
+    },
+    {
+      "dato": "2025-08-10",
+      "sidevisninger": 36
+    },
+    {
+      "dato": "2025-08-11",
+      "sidevisninger": 986
+    },
+    {
+      "dato": "2025-08-12",
+      "sidevisninger": 724
+    },
+    {
+      "dato": "2025-08-13",
+      "sidevisninger": 670
+    },
+    {
+      "dato": "2025-08-14",
+      "sidevisninger": 523
+    },
+    {
+      "dato": "2025-08-15",
+      "sidevisninger": 693
+    },
+    {
+      "dato": "2025-08-16",
+      "sidevisninger": 67
+    },
+    {
+      "dato": "2025-08-17",
+      "sidevisninger": 45
+    },
+    {
+      "dato": "2025-08-18",
+      "sidevisninger": 755
+    },
+    {
+      "dato": "2025-08-19",
+      "sidevisninger": 862
+    },
+    {
+      "dato": "2025-08-20",
+      "sidevisninger": 728
+    },
+    {
+      "dato": "2025-08-21",
+      "sidevisninger": 1222
+    },
+    {
+      "dato": "2025-08-22",
+      "sidevisninger": 1058
+    },
+    {
+      "dato": "2025-08-23",
+      "sidevisninger": 67
+    },
+    {
+      "dato": "2025-08-24",
+      "sidevisninger": 44
+    },
+    {
+      "dato": "2025-08-25",
+      "sidevisninger": 717
+    },
+    {
+      "dato": "2025-08-26",
+      "sidevisninger": 798
+    },
+    {
+      "dato": "2025-08-27",
+      "sidevisninger": 863
+    },
+    {
+      "dato": "2025-08-28",
+      "sidevisninger": 828
+    },
+    {
+      "dato": "2025-08-29",
+      "sidevisninger": 604
+    },
+    {
+      "dato": "2025-08-30",
+      "sidevisninger": 229
+    },
+    {
+      "dato": "2025-08-31",
+      "sidevisninger": 35
+    },
+    {
+      "dato": "2025-09-01",
+      "sidevisninger": 755
+    },
+    {
+      "dato": "2025-09-02",
+      "sidevisninger": 818
+    },
+    {
+      "dato": "2025-09-03",
+      "sidevisninger": 724
+    },
+    {
+      "dato": "2025-09-04",
+      "sidevisninger": 794
+    },
+    {
+      "dato": "2025-09-05",
+      "sidevisninger": 928
+    },
+    {
+      "dato": "2025-09-06",
+      "sidevisninger": 34
+    },
+    {
+      "dato": "2025-09-07",
+      "sidevisninger": 93
+    },
+    {
+      "dato": "2025-09-08",
+      "sidevisninger": 638
+    },
+    {
+      "dato": "2025-09-09",
+      "sidevisninger": 710
+    },
+    {
+      "dato": "2025-09-10",
+      "sidevisninger": 867
+    },
+    {
+      "dato": "2025-09-11",
+      "sidevisninger": 839
+    },
+    {
+      "dato": "2025-09-12",
+      "sidevisninger": 933
+    },
+    {
+      "dato": "2025-09-13",
+      "sidevisninger": 18
+    },
+    {
+      "dato": "2025-09-14",
+      "sidevisninger": 55
+    },
+    {
+      "dato": "2025-09-15",
+      "sidevisninger": 537
+    },
+    {
+      "dato": "2025-09-16",
+      "sidevisninger": 619
+    },
+    {
+      "dato": "2025-09-17",
+      "sidevisninger": 705
+    },
+    {
+      "dato": "2025-09-18",
+      "sidevisninger": 743
+    },
+    {
+      "dato": "2025-09-19",
+      "sidevisninger": 741
+    },
+    {
+      "dato": "2025-09-20",
+      "sidevisninger": 65
+    },
+    {
+      "dato": "2025-09-21",
+      "sidevisninger": 22
+    },
+    {
+      "dato": "2025-09-22",
+      "sidevisninger": 924
+    },
+    {
+      "dato": "2025-09-23",
+      "sidevisninger": 732
+    },
+    {
+      "dato": "2025-09-24",
+      "sidevisninger": 494
+    },
+    {
+      "dato": "2025-09-25",
+      "sidevisninger": 446
+    },
+    {
+      "dato": "2025-09-26",
+      "sidevisninger": 714
+    },
+    {
+      "dato": "2025-09-27",
+      "sidevisninger": 33
+    },
+    {
+      "dato": "2025-09-28",
+      "sidevisninger": 44
+    },
+    {
+      "dato": "2025-09-29",
+      "sidevisninger": 532
+    },
+    {
+      "dato": "2025-09-30",
+      "sidevisninger": 741
+    },
+    {
+      "dato": "2025-10-01",
+      "sidevisninger": 377
+    },
+    {
+      "dato": "2025-10-02",
+      "sidevisninger": 589
+    },
+    {
+      "dato": "2025-10-03",
+      "sidevisninger": 317
+    },
+    {
+      "dato": "2025-10-04",
+      "sidevisninger": 90
+    },
+    {
+      "dato": "2025-10-05",
+      "sidevisninger": 103
+    },
+    {
+      "dato": "2025-10-06",
+      "sidevisninger": 844
+    },
+    {
+      "dato": "2025-10-07",
+      "sidevisninger": 731
+    },
+    {
+      "dato": "2025-10-08",
+      "sidevisninger": 894
+    },
+    {
+      "dato": "2025-10-09",
+      "sidevisninger": 639
+    },
+    {
+      "dato": "2025-10-10",
+      "sidevisninger": 543
+    },
+    {
+      "dato": "2025-10-11",
+      "sidevisninger": 45
+    },
+    {
+      "dato": "2025-10-12",
+      "sidevisninger": 186
+    },
+    {
+      "dato": "2025-10-13",
+      "sidevisninger": 929
+    },
+    {
+      "dato": "2025-10-14",
+      "sidevisninger": 621
+    },
+    {
+      "dato": "2025-10-15",
+      "sidevisninger": 236
+    },
+    {
+      "dato": "2025-10-16",
+      "sidevisninger": 632
+    },
+    {
+      "dato": "2025-10-17",
+      "sidevisninger": 751
+    },
+    {
+      "dato": "2025-10-18",
+      "sidevisninger": 44
+    },
+    {
+      "dato": "2025-10-19",
+      "sidevisninger": 43
+    },
+    {
+      "dato": "2025-10-20",
+      "sidevisninger": 771
+    },
+    {
+      "dato": "2025-10-21",
+      "sidevisninger": 645
+    },
+    {
+      "dato": "2025-10-22",
+      "sidevisninger": 559
+    },
+    {
+      "dato": "2025-10-23",
+      "sidevisninger": 670
+    },
+    {
+      "dato": "2025-10-24",
+      "sidevisninger": 572
+    },
+    {
+      "dato": "2025-10-25",
+      "sidevisninger": 52
+    },
+    {
+      "dato": "2025-10-26",
+      "sidevisninger": 95
+    },
+    {
+      "dato": "2025-10-27",
+      "sidevisninger": 489
+    },
+    {
+      "dato": "2025-10-28",
+      "sidevisninger": 635
+    },
+    {
+      "dato": "2025-10-29",
+      "sidevisninger": 956
+    },
+    {
+      "dato": "2025-10-30",
+      "sidevisninger": 742
+    },
+    {
+      "dato": "2025-10-31",
+      "sidevisninger": 580
+    },
+    {
+      "dato": "2025-11-01",
+      "sidevisninger": 54
+    },
+    {
+      "dato": "2025-11-02",
+      "sidevisninger": 140
+    },
+    {
+      "dato": "2025-11-03",
+      "sidevisninger": 529
+    },
+    {
+      "dato": "2025-11-04",
+      "sidevisninger": 747
+    },
+    {
+      "dato": "2025-11-05",
+      "sidevisninger": 580
+    },
+    {
+      "dato": "2025-11-06",
+      "sidevisninger": 684
+    },
+    {
+      "dato": "2025-11-07",
+      "sidevisninger": 500
+    },
+    {
+      "dato": "2025-11-08",
+      "sidevisninger": 48
+    },
+    {
+      "dato": "2025-11-09",
+      "sidevisninger": 77
+    },
+    {
+      "dato": "2025-11-10",
+      "sidevisninger": 742
+    },
+    {
+      "dato": "2025-11-11",
+      "sidevisninger": 897
+    },
+    {
+      "dato": "2025-11-12",
+      "sidevisninger": 550
+    },
+    {
+      "dato": "2025-11-13",
+      "sidevisninger": 637
+    },
+    {
+      "dato": "2025-11-14",
+      "sidevisninger": 519
+    },
+    {
+      "dato": "2025-11-15",
+      "sidevisninger": 63
+    },
+    {
+      "dato": "2025-11-16",
+      "sidevisninger": 77
+    },
+    {
+      "dato": "2025-11-17",
+      "sidevisninger": 535
+    },
+    {
+      "dato": "2025-11-18",
+      "sidevisninger": 517
+    },
+    {
+      "dato": "2025-11-19",
+      "sidevisninger": 582
+    },
+    {
+      "dato": "2025-11-20",
+      "sidevisninger": 487
+    },
+    {
+      "dato": "2025-11-21",
+      "sidevisninger": 619
+    },
+    {
+      "dato": "2025-11-22",
+      "sidevisninger": 41
+    },
+    {
+      "dato": "2025-11-23",
+      "sidevisninger": 155
+    },
+    {
+      "dato": "2025-11-24",
+      "sidevisninger": 756
+    },
+    {
+      "dato": "2025-11-25",
+      "sidevisninger": 749
+    },
+    {
+      "dato": "2025-11-26",
+      "sidevisninger": 904
+    },
+    {
+      "dato": "2025-11-27",
+      "sidevisninger": 810
+    },
+    {
+      "dato": "2025-11-28",
+      "sidevisninger": 745
+    },
+    {
+      "dato": "2025-11-29",
+      "sidevisninger": 39
+    },
+    {
+      "dato": "2025-11-30",
+      "sidevisninger": 50
+    },
+    {
+      "dato": "2025-12-01",
+      "sidevisninger": 608
+    },
+    {
+      "dato": "2025-12-02",
+      "sidevisninger": 672
+    },
+    {
+      "dato": "2025-12-03",
+      "sidevisninger": 542
+    },
+    {
+      "dato": "2025-12-04",
+      "sidevisninger": 576
+    },
+    {
+      "dato": "2025-12-05",
+      "sidevisninger": 507
+    },
+    {
+      "dato": "2025-12-06",
+      "sidevisninger": 13
+    },
+    {
+      "dato": "2025-12-07",
+      "sidevisninger": 63
+    },
+    {
+      "dato": "2025-12-08",
+      "sidevisninger": 862
+    },
+    {
+      "dato": "2025-12-09",
+      "sidevisninger": 615
+    },
+    {
+      "dato": "2025-12-10",
+      "sidevisninger": 503
+    },
+    {
+      "dato": "2025-12-11",
+      "sidevisninger": 509
+    },
+    {
+      "dato": "2025-12-12",
+      "sidevisninger": 586
+    },
+    {
+      "dato": "2025-12-13",
+      "sidevisninger": 29
+    },
+    {
+      "dato": "2025-12-14",
+      "sidevisninger": 63
+    },
+    {
+      "dato": "2025-12-15",
+      "sidevisninger": 466
+    },
+    {
+      "dato": "2025-12-16",
+      "sidevisninger": 548
+    },
+    {
+      "dato": "2025-12-17",
+      "sidevisninger": 255
+    }
+  ],
+  "default-3": [
+    {
+      "antall": 170,
+      "andel": "3.6%",
+      "steg_1": "sok",
+      "steg_2": "sok",
+      "steg_3": "sok",
+      "steg_4": "sok",
+      "steg_5": "sok"
+    },
+    {
+      "antall": 52,
+      "andel": "1.1%",
+      "steg_1": "header → ?",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 38,
+      "andel": "0.8%",
+      "steg_1": "sidebar-subnav",
+      "steg_2": "sidebar-subnav",
+      "steg_3": "sidebar-subnav",
+      "steg_4": "sidebar-subnav",
+      "steg_5": "sidebar-subnav"
+    },
+    {
+      "antall": 37,
+      "andel": "0.8%",
+      "steg_1": "client-error",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 34,
+      "andel": "0.7%",
+      "steg_1": "introkort → ?",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 33,
+      "andel": "0.7%",
+      "steg_1": "header → /god-praksis",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 29,
+      "andel": "0.6%",
+      "steg_1": "header → /produktbloggen",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 20,
+      "andel": "0.4%",
+      "steg_1": "header → ?",
+      "steg_2": "sidebar → ?",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 19,
+      "andel": "0.4%",
+      "steg_1": "god praksis forside → ?",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 19,
+      "andel": "0.4%",
+      "steg_1": "introkort → /komponenter",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 18,
+      "andel": "0.4%",
+      "steg_1": "footer → https://github.com/navikt/aksel",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 18,
+      "andel": "0.4%",
+      "steg_1": "header → /designsystemet",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 17,
+      "andel": "0.4%",
+      "steg_1": "header → ?",
+      "steg_2": "header → ?",
+      "steg_3": "header → ?",
+      "steg_4": "header → ?",
+      "steg_5": "header → ?"
+    },
+    {
+      "antall": 16,
+      "andel": "0.3%",
+      "steg_1": "footer → /side/om-aksel",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 16,
+      "andel": "0.3%",
+      "steg_1": "introkort → ?",
+      "steg_2": "sidebar → ?",
+      "steg_3": "sidebar → ?",
+      "steg_4": "sidebar → ?",
+      "steg_5": "sidebar → ?"
+    },
+    {
+      "antall": 16,
+      "andel": "0.3%",
+      "steg_1": "sidebar → [PROXY-FILEPATH]",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 16,
+      "andel": "0.3%",
+      "steg_1": "introkort → ?",
+      "steg_2": "sidebar → ?",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 16,
+      "andel": "0.3%",
+      "steg_1": "sidebar → /komponenter/ikoner",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 14,
+      "andel": "0.3%",
+      "steg_1": "god-praksis-chip",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    },
+    {
+      "antall": 14,
+      "andel": "0.3%",
+      "steg_1": "sidebar-subnav",
+      "steg_2": "-",
+      "steg_3": "-",
+      "steg_4": "-",
+      "steg_5": "-"
+    }
+  ],
+  "default-4": [
+    {
+      "maaned": 3,
+      "sidevisninger": 19304
+    },
+    {
+      "maaned": 4,
+      "sidevisninger": 18879
+    },
+    {
+      "maaned": 5,
+      "sidevisninger": 18055
+    },
+    {
+      "maaned": 6,
+      "sidevisninger": 18426
+    },
+    {
+      "maaned": 7,
+      "sidevisninger": 9385
+    },
+    {
+      "maaned": 8,
+      "sidevisninger": 16296
+    },
+    {
+      "maaned": 9,
+      "sidevisninger": 16298
+    },
+    {
+      "maaned": 10,
+      "sidevisninger": 15380
+    },
+    {
+      "maaned": 11,
+      "sidevisninger": 13833
+    },
+    {
+      "maaned": 12,
+      "sidevisninger": 7417
+    }
+  ],
+  "default-5": [
+    {
+      "side": "/",
+      "sidevisninger": 14565
+    },
+    {
+      "side": "/komponenter/core",
+      "sidevisninger": 3545
+    },
+    {
+      "side": "/komponenter/ikoner",
+      "sidevisninger": 3540
+    },
+    {
+      "side": "/grunnleggende/styling/design-tokens",
+      "sidevisninger": 3403
+    },
+    {
+      "side": "/designsystemet",
+      "sidevisninger": 3300
+    },
+    {
+      "side": "/komponenter",
+      "sidevisninger": 3215
+    },
+    {
+      "side": "/god-praksis",
+      "sidevisninger": 2646
+    },
+    {
+      "side": "/komponenter/core/button",
+      "sidevisninger": 2353
+    },
+    {
+      "side": "/komponenter/core/datepicker",
+      "sidevisninger": 1988
+    },
+    {
+      "side": "/komponenter/core/table",
+      "sidevisninger": 1877
+    },
+    {
+      "side": "/komponenter/primitives/box",
+      "sidevisninger": 1737
+    },
+    {
+      "side": "/komponenter/core/actionmenu",
+      "sidevisninger": 1702
+    }
+  ],
+  "default-7": [
+    {
+      "kilde": "aksel.nav.no",
+      "sidevisninger": 110948
+    },
+    {
+      "kilde": "(direkte)",
+      "sidevisninger": 37389
+    },
+    {
+      "kilde": "google.com",
+      "sidevisninger": 3012
+    },
+    {
+      "kilde": "statics.teams.cdn.office.net",
+      "sidevisninger": 274
+    },
+    {
+      "kilde": "navno.sharepoint.com",
+      "sidevisninger": 254
+    },
+    {
+      "kilde": "bing.com",
+      "sidevisninger": 211
+    },
+    {
+      "kilde": "login.microsoftonline.com",
+      "sidevisninger": 159
+    },
+    {
+      "kilde": "github.com",
+      "sidevisninger": 142
+    },
+    {
+      "kilde": "a11y-statement-ny.ansatt.nav.no",
+      "sidevisninger": 97
+    },
+    {
+      "kilde": "designsystemet.no",
+      "sidevisninger": 69
+    }
+  ],
+  "default-6": [
+    {
+      "operativsystem": "Mac OS",
+      "unike_besokende": 4798
+    },
+    {
+      "operativsystem": "Windows 10",
+      "unike_besokende": 2012
+    },
+    {
+      "operativsystem": "iOS",
+      "unike_besokende": 816
+    },
+    {
+      "operativsystem": "Android OS",
+      "unike_besokende": 276
+    },
+    {
+      "operativsystem": "(ukjent)",
+      "unike_besokende": 154
+    },
+    {
+      "operativsystem": "Linux",
+      "unike_besokende": 154
+    },
+    {
+      "operativsystem": "Chrome OS",
+      "unike_besokende": 8
+    }
+  ]
+}

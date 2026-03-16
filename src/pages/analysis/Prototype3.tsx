@@ -8,6 +8,7 @@ import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
 import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
 import FilterBar from "../../components/dashboard/FilterBar";
 import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
+import mockupResults from "../../data/dashboard/mockupResults.json";
 
 const AKSEL_WEBSITE_ID = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1';
 const DEFAULT_URL = 'https://aksel.nav.no/';
@@ -81,10 +82,13 @@ const Prototype3 = () => {
 
     type WidgetEntry = { id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string; aiPrompt?: string };
 
-    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => ({
-        ...w,
-        result: null,
-    }));
+    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => {
+        const rows = (mockupResults as Record<string, unknown[]>)[w.id];
+        return {
+            ...w,
+            result: rows ? { success: true, data: rows, rowCount: rows.length } : null,
+        };
+    });
 
 
 
