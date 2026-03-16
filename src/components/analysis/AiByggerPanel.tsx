@@ -596,7 +596,7 @@ LIMIT 25;`,
         const startUrl = (path && path !== '') ? path : '/';
         const steps = 3;
         const limit = 5;
-        const direction = 'forward';
+        const direction: string = 'forward';
         const windowFn = direction === 'backward' ? 'LAG' : 'LEAD';
         const nextCol = direction === 'backward' ? 'prev_url' : 'next_url';
         const timeOp = direction === 'backward' ? '<=' : '>=';

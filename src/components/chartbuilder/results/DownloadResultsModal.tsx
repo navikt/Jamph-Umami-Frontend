@@ -144,7 +144,7 @@ const DownloadResultsModal = ({
     const h = previewSize.rows * ROW_PX;
     const chartEl = buildChartEl(previewSize);
     return (
-      <Modal open={open} onClose={handleClose} header={{ heading: `PNG – ${previewSize.name} (${w}×${h}px)` }} width="large">
+      <Modal open={open} onClose={handleClose} header={{ heading: `PNG – ${previewSize.name} (${w}×${h}px)` }} width="medium">
         <Modal.Body>
           <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '70vh', background: '#f0f0f0', padding: 8 }}>
             <div ref={chartRef} className="widget-card" style={{ width: w, height: h }}>
