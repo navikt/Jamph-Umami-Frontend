@@ -72,7 +72,7 @@ export function AiByggerPanel({ websiteId, path, pathOperator, startDate: propSt
 
     const [step, setStep] = useState<Step>(1);
     const [query, setQuery] = useState(defaultQuery);
-    const [aiPrompt, setAiPrompt] = useState(`Daglige sidevisninger for ${pathLabel} i 2025`);
+    const [aiPrompt, setAiPrompt] = useState('');
     const [result, setResult] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -423,6 +423,37 @@ LIMIT 25;`,
 
     const generateSqlFromAi = async () => {
         const basePrompt = aiPrompt.trim() || `Vis meg daglige sidevisninger for ${pathLabel} i 2025`;
+
+        // Check if prompt matches a pre-fetched example — use mock data instead of API calls
+        const matchIdx = examplesAiBuilder.findIndex(ex =>
+            basePrompt === ex.prompt || basePrompt === ex.title
+        );
+        if (matchIdx !== -1) {
+            const item = examplesAiBuilder[matchIdx];
+            const order = item.tabOrder ?? [];
+            setTabOrder(order);
+            setIsApiOnly(!!(item as any).apiOnly);
+            setCurrentExplanation((item as any).explanation ?? null);
+            if ((item as any).apiOnly) {
+                const jd = mockupJourneyData as { nodes: any[]; links: any[] };
+                if (jd.nodes.length > 0) setJourneyData(jd);
+                setP2Tab(order[0] ?? 'stegvisning');
+            } else {
+                setQuery(item.sql);
+                const mockRows = (mockupExampleResults as Record<string, any[]>)[String(matchIdx)];
+                if (mockRows) {
+                    setResult({ success: true, data: mockRows, rowCount: mockRows.length });
+                    shouldAutoExecuteRef.current = false;
+                } else {
+                    setResult(null);
+                    shouldAutoExecuteRef.current = true;
+                }
+                setP2Tab(order[0] ?? 'table');
+            }
+            setStep(2);
+            return;
+        }
+
         const pathDesc = pathOperator === 'starts-with' && path !== '/'
             ? ` (url_path LIKE '${path}%')`
             : pathOperator === 'equals' ? ` (url_path = '${path}')` : '';
@@ -768,9 +799,11 @@ ORDER BY term`;
                         <textarea
                             value={aiPrompt}
                             onChange={(e) => setAiPrompt(e.target.value)}
+                            onClick={() => { if (!aiPrompt) setAiPrompt(examplesAiBuilder[0].title); }}
                             placeholder={`Eksempel: Daglige sidevisninger for ${pathLabel} i 2025`}
                             rows={5}
                             className="navds-textarea__input w-full"
+                            data-tour="prompt-input"
                             style={{ width: '100%', resize: 'none', padding: '8px 12px', borderRadius: '4px', border: '1px solid #6a6a6a', fontSize: '1rem', fontFamily: 'inherit', lineHeight: '1.5', backgroundColor: '#fff', outline: 'none', boxShadow: 'none' }}
                             onFocus={e => e.currentTarget.style.boxShadow = '0 0 0 3px #0067C5'}
                             onBlur={e => e.currentTarget.style.boxShadow = 'none'}
@@ -792,6 +825,7 @@ ORDER BY term`;
                             Lag egen SQL
                         </Button>
                         <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />}
+                            data-tour="lag-graf"
                             onClick={() => { shouldAutoExecuteRef.current = true; generateSqlFromAi(); }}>
                             Lag graf
                         </Button>
@@ -893,6 +927,7 @@ ORDER BY term`;
                             {onAddWidget && (
                                 <Button
                                     variant="primary" size="small"
+                                    data-tour="legg-til"
                                     disabled={p2Tab === 'stegvisning' ? !journeyData : p2Tab === 'kiforklaring' ? !currentExplanation : !result?.data?.length}
                                     onClick={() => {
                                         const sizes = WIDGET_SIZES[p2Tab] ?? [{ cols: 1, rows: 1, name: 'Standard' }];
@@ -947,6 +982,7 @@ ORDER BY term`;
                                         <Button
                                             key={size.name}
                                             variant="secondary"
+                                            {...(size.cols === 2 && size.rows === 1 ? { 'data-tour': 'size-2x1' } : {})}
                                             onClick={() => {
                                                 onAddWidget(pendingAdd.sql, pendingAdd.chartType, pendingAdd.result, size, pendingAdd.title, pendingAdd.title);
                                                 setPendingAdd(null);
