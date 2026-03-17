@@ -9,7 +9,7 @@ spec:
   image: {{ image }}
   port: 8080
   envFrom:
-  - secret: umami-bigquery
+  - secret: student-bigquery
   liveness:
     path: /isalive
     port: 8080
