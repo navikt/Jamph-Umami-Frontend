@@ -26,6 +26,10 @@ if (basicAuthConfigRaw) {
         if (separatorIndex !== -1) {
             basicAuthUsername = basicAuthUsername || basicAuthConfigRaw.slice(0, separatorIndex)
             basicAuthPassword = basicAuthPassword || basicAuthConfigRaw.slice(separatorIndex + 1)
+        } else if (!basicAuthPassword) {
+            // Support password-only "basic-auth" values.
+            basicAuthUsername = basicAuthUsername || 'jamph'
+            basicAuthPassword = basicAuthConfigRaw
         }
     }
 }
