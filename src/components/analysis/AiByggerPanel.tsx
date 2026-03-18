@@ -460,7 +460,7 @@ LIMIT 25;`,
         const contextPrefix = `BigQuery-tabell: \`fagtorsdag-prod-81a6.umami_student.event\`. website_id = '${websiteId}'${pathDesc}. Svar kun med SQL.\n\nSpørsmål: `;
         setError(null);
         try {
-            const response = await fetch('http://localhost:8004/api/sql', {
+            const response = await fetch(`${import.meta.env.VITE_RAG_API_URL}/api/sql`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: contextPrefix + basePrompt, model: 'qwen2.5-coder:7b' }),

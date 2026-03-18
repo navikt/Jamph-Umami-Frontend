@@ -87,7 +87,7 @@ export default function AiChartBuilder() {
         setGeneratingAI(true);
 
         try {
-            const response = await fetch('http://localhost:8004/api/sql', {
+            const response = await fetch(`${import.meta.env.VITE_RAG_API_URL}/api/sql`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -126,7 +126,7 @@ export default function AiChartBuilder() {
                 setQuery('-- API-svar mottatt men ingen SQL-respons funnet\n-- Debug:\n' + JSON.stringify(data, null, 2));
             }
         } catch (err) {
-            setQuery(`-- Feil: Kunne ikke koble til AI-serveren\n-- Sjekk at serveren kjører på http://localhost:8004\n\n${defaultQuery}`);
+            setQuery(`-- Feil: Kunne ikke koble til AI-serveren\n-- Sjekk at serveren kjører på ${import.meta.env.VITE_RAG_API_URL}\n\n${defaultQuery}`);
         } finally {
             setGeneratingAI(false);
         }
