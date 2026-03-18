@@ -26,4 +26,5 @@ dist-ssr
 service-account-key.json
 fagtorsdag-prod-81a6-52ac69097f46.json
 !/createfakeuser.env
+!.env.production
 modules
