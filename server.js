@@ -12,6 +12,59 @@ const __dirname = path.dirname(__filename)
 const app = express()
 app.use(express.json())
 
+const basicAuthConfigRaw = process.env['basic-auth'] || process.env.BASIC_AUTH
+let basicAuthUsername = process.env.BASIC_AUTH_USERNAME
+let basicAuthPassword = process.env.BASIC_AUTH_PASSWORD
+
+if (basicAuthConfigRaw) {
+    try {
+        const parsed = JSON.parse(basicAuthConfigRaw)
+        basicAuthUsername = basicAuthUsername || parsed.username || parsed.user
+        basicAuthPassword = basicAuthPassword || parsed.password || parsed.pass
+    } catch (error) {
+        const separatorIndex = basicAuthConfigRaw.indexOf(':')
+        if (separatorIndex !== -1) {
+            basicAuthUsername = basicAuthUsername || basicAuthConfigRaw.slice(0, separatorIndex)
+            basicAuthPassword = basicAuthPassword || basicAuthConfigRaw.slice(separatorIndex + 1)
+        } else if (!basicAuthPassword) {
+            // Support password-only "basic-auth" values.
+            basicAuthUsername = basicAuthUsername || 'jamph'
+            basicAuthPassword = basicAuthConfigRaw
+        }
+    }
+}
+
+if (basicAuthUsername && basicAuthPassword) {
+    app.use((req, res, next) => {
+        if (req.path === '/isalive' || req.path === '/isready') {
+            return next()
+        }
+
+        const authHeader = req.headers.authorization
+        if (!authHeader || !authHeader.startsWith('Basic ')) {
+            res.setHeader('WWW-Authenticate', 'Basic realm="Restricted", charset="UTF-8"')
+            return res.status(401).send('Authentication required')
+        }
+
+        const encoded = authHeader.split(' ')[1]
+        const decoded = Buffer.from(encoded, 'base64').toString('utf-8')
+        const separatorIndex = decoded.indexOf(':')
+        const username = separatorIndex === -1 ? decoded : decoded.slice(0, separatorIndex)
+        const password = separatorIndex === -1 ? '' : decoded.slice(separatorIndex + 1)
+
+        if (username === basicAuthUsername && password === basicAuthPassword) {
+            return next()
+        }
+
+        res.setHeader('WWW-Authenticate', 'Basic realm="Restricted", charset="UTF-8"')
+        return res.status(401).send('Authentication required')
+    })
+
+    console.log('✓ Basic auth enabled')
+} else {
+    console.log('Basic auth not configured (set basic-auth or BASIC_AUTH_USERNAME/BASIC_AUTH_PASSWORD)')
+}
+
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception:', err);
 });
@@ -164,12 +217,17 @@ const substituteQueryParameters = (query, params) => {
 
 const buildPath = path.join(path.resolve(__dirname, './dist'))
 
-app.use('/', express.static(buildPath, { index: false }))
+app.use((req, res, next) => {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet, noimageindex')
+    next()
+})
 
 app.use('/robots.txt', function (req, res, next) {
     res.type('text/plain')
-    res.send("User-agent: *\nAllow: /");
+    res.send("User-agent: *\nDisallow: /");
 });
+
+app.use('/', express.static(buildPath, { index: false }))
 
 app.get('/isalive', (req, res) => {
     res.send('OK')

@@ -1,4 +1,4 @@
-Start Umami
+Innblikk med KI
 ================
 
 For å måle brukeradferd effektivt, trenger du verktøy som gir innsikt uten å gå på bekostning av brukervennlighet, datasikkerhet eller personvern..
