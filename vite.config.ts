@@ -9,6 +9,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+      },
+      '/api/rag': {
+        target: 'https://jamph-rag-api-umami.ekstern.dev.nav.no',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/rag/, ''),
       }
     }
   }
