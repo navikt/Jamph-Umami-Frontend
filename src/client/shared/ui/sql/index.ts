@@ -1,1 +1,1 @@
-export { default as SqlEditor } from './SqlEditor';
+export { default as SqlCodeEditor } from './SqlCodeEditor';
