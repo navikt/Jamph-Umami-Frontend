@@ -154,12 +154,10 @@ src
 │   │   │   ├───api
 │   │   │   ├───hooks
 │   │   │   ├───model
-│   │   │   │   ├───analyticsNavigation.ts      #origin main src/components/analysis/AnalyticsNavigation.tsx
-│   │   │   │   └───developerToolsNavigation.ts #origin main src/components/analysis/DeveloperToolsNavigation.tsx
 │   │   │   ├───storage
 │   │   │   ├───ui
-│   │   │   │   ├───AnalysisActionModal.tsx     #origin main src/components/analysis/AnalysisActionModal.tsx
-│   │   │   │   ├───ChartLayout.tsx             #origin main src/components/analysis/ChartLayout.tsx
+│   │   │   │   ├───AnalysisActionModal.tsx     #origin src/components/analysis/AnalysisActionModal.tsx
+│   │   │   │   ├───ChartLayout.tsx             #origin src/components/analysis/ChartLayout.tsx
 │   │   │   │   ├───Diagnosis.tsx               #origin main src/pages/analysis/Diagnosis.tsx
 │   │   │   │   ├───PeriodPicker.tsx            #origin main src/components/analysis/PeriodPicker.tsx
 │   │   │   │   ├───PrivacyCheck.tsx            #origin main src/pages/analysis/PrivacyCheck.tsx
@@ -196,15 +194,15 @@ src
 │   │   │   │   │   └───traffic-sources.example.json
 │   │   │   │   └───templateRegistry.ts
 │   │   │   ├───ui
-│   │   │   │   ├───AiChartBuilder.tsx #origin prototype prototype3 src/pages/analysis/AiByggerPanel.tsx
+│   │   │   │   ├───AiChartBuilder.tsx #origin prototype3 src/pages/analysis/AiByggerPanel.tsx
 │   │   │   │   ├───builder
-│   │   │   │   │   ├───PromptEditor.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx
-│   │   │   │   │   ├───SuggestionPanel.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx
-│   │   │   │   │   └───GenerationControls.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx
+│   │   │   │   │   ├───PromptEditor.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx
+│   │   │   │   │   ├───SuggestionPanel.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx
+│   │   │   │   │   └───GenerationControls.tsx #origin prototype3 src/components/analysis/AiByggerPanel.ts
 │   │   │   │   └───results
-│   │   │   │       ├───AiResultsPanel.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx | #origin prototype prototype3 src/pages/analysis/Prototype3.tsx
-│   │   │   │       ├───AiSqlPreview.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx
-│   │   │   │       └───AiChartPreview.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx
+│   │   │   │       ├───AiResultsPanel.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx | #origin prototype3 src/pages/analysis/Prototype3.tsx
+│   │   │   │       ├───AiSqlPreview.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx
+│   │   │   │       └───AiChartPreview.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx
 │   │   │   ├───utils
 │   │   │   │   ├───aiRequestPayload.ts #frontend sender kun rå prompt + filtre; kontekst bygges i kotlin
 │   │   │   │   ├───sqlResponseParser.ts
@@ -293,19 +291,6 @@ src
 │   │   │   ├───model
 │   │   │   ├───ui
 │   │   │   └───utils
-│   │   ├───siteimprove*
-│   │   │   └───frontend*
-│   │   │       ├───api*
-│   │   │       │   └───siteimprove.ts* #finnes og flyttes kanskje
-│   │   │       ├───hooks*
-│   │   │       │   └───useSiteimproveSupport.ts* #finnes og flyttes kanskje
-│   │   │       ├───utils*
-│   │   │       │   └───siteimprove.ts* #finnes og flyttes kanskje
-│   │   │       └───ui*
-│   │   │           └───widget*
-│   │   │               ├───DashboardWidgetSiteimprove.tsx* #finnes og flyttes kanskje
-│   │   │               ├───SiteScores.jsx* #finnes og flyttes kanskje
-│   │   │               └───SiteGroupScores.jsx* #finnes og flyttes kanskje
 │   │   ├───sql
 │   │   │   ├───api
 │   │   │   ├───hooks
@@ -330,38 +315,36 @@ src
 │       ├───api
 │       ├───hooks
 │       ├───lib
-│       │   └───widgetSizes.ts #origin prototype prototype3 src/lib/widgetSizes.ts
-│       ├───types
-│       │   └───widgetSize.ts #origin prototype prototype3 src/lib/widgetSizes.ts
+│       │   └───widgetSize.ts #origin prototype3 src/lib/widgetSizes.ts
 │       └───ui
 │           ├───sql
-│           │   └───SqlEditor.tsx #origin prototype prototype3 src/components/analysis/AiByggerPanel.tsx | #origin prototype prototype3 src/pages/analysis/SqlEditor.tsx
+│           │   └───SqlEditor.tsx #origin prototype3 src/components/analysis/AiByggerPanel.tsx | #origin prototype3 src/pages/analysis/SqlEditor.tsx
 │           ├───tables
 │           │   ├───components
-│           │   │   ├───AreaChart.tsx #origin prototype prototype3 src/components/dashboard/DashboardAreaChart.tsx
-│           │   │   ├───BarChart.tsx #origin prototype prototype3 src/components/dashboard/DashboardBarChart.tsx
-│           │   │   ├───Journey.tsx #origin prototype prototype3 src/components/dashboard/DashboardJourney.tsx
-│           │   │   ├───KIForklaring.tsx #origin prototype prototype3 src/components/dashboard/DashboardKIForklaring.tsx
-│           │   │   ├───LineChart.tsx #origin prototype prototype3 src/components/dashboard/DashboardLineChart.tsx
-│           │   │   ├───PieChart.tsx #origin prototype prototype3 src/components/dashboard/DashboardPieChart.tsx
-│           │   │   ├───StatCards.tsx #origin prototype prototype3 src/components/dashboard/DashboardStatCards.tsx
-│           │   │   └───Table.tsx #origin prototype prototype3 src/components/dashboard/DashboardTable.tsx
+│           │   │   ├───AreaChart.tsx #origin prototype3 src/components/dashboard/DashboardAreaChart.tsx
+│           │   │   ├───BarChart.tsx #origin prototype3 src/components/dashboard/DashboardBarChart.tsx
+│           │   │   ├───Journey.tsx #origin prototype3 src/components/dashboard/DashboardJourney.tsx
+│           │   │   ├───KIForklaring.tsx #origin prototype3 src/components/dashboard/DashboardKIForklaring.tsx
+│           │   │   ├───LineChart.tsx #origin prototype3 src/components/dashboard/DashboardLineChart.tsx
+│           │   │   ├───PieChart.tsx #origin prototype3 src/components/dashboard/DashboardPieChart.tsx
+│           │   │   ├───StatCards.tsx #origin prototype3 src/components/dashboard/DashboardStatCards.tsx
+│           │   │   └───Table.tsx #origin prototype3 src/components/dashboard/DashboardTable.tsx
 │           │   ├───layout
-│           │   │   ├───FilterBar.tsx #origin prototype prototype3 src/components/dashboard/FilterBar.tsx
-│           │   │   ├───PinnedGrid.tsx #origin prototype prototype3 src/components/dashboard/PinnedGrid.tsx
-│           │   │   ├───PinnedWidget.tsx #origin prototype prototype3 src/components/dashboard/PinnedWidget.tsx
-│           │   │   └───UrlSearchFormPrototype.tsx #origin prototype prototype3 src/components/dashboard/UrlSearchFormPrototype.tsx
+│           │   │   ├───FilterBar.tsx #origin prototype3 src/components/dashboard/FilterBar.tsx
+│           │   │   ├───PinnedGrid.tsx #origin prototype3 src/components/dashboard/PinnedGrid.tsx
+│           │   │   ├───PinnedWidget.tsx #origin prototype3 src/components/dashboard/PinnedWidget.tsx
+│           │   │   └───UrlSearchFormPrototype.tsx #origin prototype3 src/components/dashboard/UrlSearchFormPrototype.tsx
 │           │   └───viewTypes
-│           │       ├───baseViewType.ts #origin prototype prototype3 src/components/dashboard/PinnedWidget.tsx
-│           │       ├───lineChartViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardLineChart.tsx
-│           │       ├───barChartViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardBarChart.tsx
-│           │       ├───areaChartViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardAreaChart.tsx
-│           │       ├───pieChartViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardPieChart.tsx
-│           │       ├───tableViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardTable.tsx
-│           │       ├───statCardsViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardStatCards.tsx
-│           │       ├───journeyStepsViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardJourney.tsx
-│           │       ├───aiExplanationViewType.ts #origin prototype prototype3 src/components/dashboard/DashboardKIForklaring.tsx
-│           │       └───viewTypeRegistry.ts #origin prototype prototype3 src/components/dashboard/PinnedWidget.tsx
+│           │       ├───baseViewType.ts #origin prototype3 src/components/dashboard/PinnedWidget.tsx
+│           │       ├───lineChartViewType.ts #origin prototype3 src/components/dashboard/DashboardLineChart.tsx
+│           │       ├───barChartViewType.ts #origin prototype3 src/components/dashboard/DashboardBarChart.tsx
+│           │       ├───areaChartViewType.ts #origin prototype3 src/components/dashboard/DashboardAreaChart.tsx
+│           │       ├───pieChartViewType.ts #origin prototype3 src/components/dashboard/DashboardPieChart.tsx
+│           │       ├───tableViewType.ts #origin prototype3 src/components/dashboard/DashboardTable.tsx
+│           │       ├───statCardsViewType.ts #origin prototype3 src/components/dashboard/DashboardStatCards.tsx
+│           │       ├───journeyStepsViewType.ts #origin prototype3 src/components/dashboard/DashboardJourney.tsx
+│           │       ├───aiExplanationViewType.ts #origin prototype3 src/components/dashboard/DashboardKIForklaring.tsx
+│           │       └───viewTypeRegistry.ts #origin prototype3 src/components/dashboard/PinnedWidget.tsx
 │           └───theme
 │               ├───CopyButton
 │               ├───Footer
