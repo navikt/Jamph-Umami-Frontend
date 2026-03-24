@@ -3836,6 +3836,50 @@ app.post('/api/bigquery/event-journeys', async (req, res) => {
     }
 });
 
+// Proxy to RAG/LLM API - avoids CORS issues by forwarding requests server-side
+const RAG_API_URL = process.env.RAG_API_URL || 'https://jamph-rag-api-umami.ekstern.dev.nav.no'
+
+app.all('/api/rag/*path', async (req, res) => {
+    const subPath = req.path.replace('/api/rag', '')
+    const targetUrl = `${RAG_API_URL}${subPath}`
+
+    console.log(`[RAG Proxy] ${req.method} ${req.path} -> ${targetUrl}`)
+
+    try {
+        const headers = { 'Content-Type': 'application/json' }
+
+        // Forward authorization header if present
+        if (req.headers.authorization) {
+            headers['authorization'] = req.headers.authorization
+        }
+
+        const fetchOptions = {
+            method: req.method,
+            headers,
+        }
+
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+            fetchOptions.body = JSON.stringify(req.body)
+        }
+
+        const upstream = await fetch(targetUrl, fetchOptions)
+
+        res.status(upstream.status)
+
+        // Forward content-type from upstream
+        const contentType = upstream.headers.get('content-type')
+        if (contentType) {
+            res.setHeader('Content-Type', contentType)
+        }
+
+        const text = await upstream.text()
+        res.send(text)
+    } catch (error) {
+        console.error('[RAG Proxy] Error:', error.message)
+        res.status(502).json({ error: 'RAG API unavailable', details: error.message })
+    }
+})
+
 app.use(/^(?!.*\/(api|internal|static)\/).*$/, (req, res) => res.sendFile(`${buildPath}/index.html`))
 
 const server = app.listen(8080, () => {

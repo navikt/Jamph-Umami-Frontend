@@ -10,6 +10,14 @@ spec:
   port: 8080
   envFrom:
   - secret: student-bigquery
+  env:
+    - name: RAG_API_URL
+      value: "http://jamph-rag-api-umami-dev"
+  accessPolicy:
+    outbound:
+      rules:
+        - application: jamph-rag-api-umami-dev
+          namespace: team-researchops
   liveness:
     path: /isalive
     port: 8080
@@ -30,5 +38,4 @@ spec:
       cpu: 50m
       memory: 128Mi
   ingresses:
-    - https://jamph-dev.ansatt.dev.nav.no
     - https://jamph.ekstern.dev.nav.no

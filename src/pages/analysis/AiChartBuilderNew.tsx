@@ -95,11 +95,8 @@ export default function AiChartBuilderNew() {
                 body: JSON.stringify({ query: text, model: 'qwen2.5-coder:7b' }),
             });
             const data = await res.json();
-            const parsed = data?.sql
-                ? (typeof data.sql === 'string' ? (() => { try { return JSON.parse(data.sql); } catch { return data; } })() : data.sql)
-                : data;
-            if (parsed?.response) {
-                sql = parsed.response.replace(/```sql\n?/g, '').replace(/```\n?/g, '').trim();
+            if (data?.sql) {
+                sql = data.sql.replace(/```sql\n?/g, '').replace(/```\n?/g, '').trim();
             }
         } catch { /* use defaultQuery */ }
 
