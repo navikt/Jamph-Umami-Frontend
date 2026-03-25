@@ -142,7 +142,7 @@ function UrlSearchFormPrototype({ children, targetPath = '/dashboard', defaultVa
             <form role="search" onSubmit={handleSubmit}>
                 <div style={{ width: '100%' }}>
                     <TextField
-                        label="1. Lim inn URL for å se webstatistikk"
+                        label="Lim inn URL for å se webstatistikk"
                         value={searchQuery}
                         error={searchError}
                         onChange={(e) => handleSearchChange(e.target.value)}

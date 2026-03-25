@@ -15,6 +15,7 @@ import AiChartBuilder from "./pages/analysis/AiChartBuilderNew.tsx";
 import Prototype3 from "./pages/analysis/Prototype3.tsx";
 import Prototype4 from "./pages/analysis/Prototype4.tsx";
 import AiBygger from "./pages/analysis/AiBygger.tsx";
+import KiAssistent from "./pages/KunstigInteligensBygger.tsx";
 import Grafdeling from "./pages/analysis/Grafdeling.tsx";
 import WidgetVisning from "./pages/analysis/WidgetVisning.tsx";
 import UserJourney from "./pages/analysis/UserJourney.tsx";
@@ -50,6 +51,8 @@ const routes = [
     { path: "/prototype3", component: <Prototype3 /> },
     { path: "/prototype4", component: <Prototype4 /> },
     { path: "/ai-bygger", component: <AiBygger /> },
+    { path: "/kunstig-intelligens-bygger", component: <KiAssistent /> },
+    { path: "/ki-assistent", component: <KiAssistent /> },
     { path: "/metabase", component: <MetabaseGuide /> },
 
     { path: "/sql", component: <SqlEditor /> },

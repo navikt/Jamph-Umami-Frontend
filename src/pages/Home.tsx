@@ -29,6 +29,12 @@ const sections = [
 ];
 
 function Home() {
+    const grayPrototypeButtonStyle = {
+        backgroundColor: '#f3f4f6',
+        color: '#4b5563',
+        border: '1px solid #d1d5db'
+    };
+
     return (
         <>
             {/* Hero section */}
@@ -143,14 +149,13 @@ function Home() {
                         <Link
                             href="/grafbygger"
                             className="primary-button"
-                            onClick={(e) => e.preventDefault()}
-                            style={{ opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(1)', pointerEvents: 'none' }}
                         >
                             Gå til Grafbyggeren
                         </Link>
                         <Link
                             href="/ai-builder"
                             className="primary-button"
+                            style={grayPrototypeButtonStyle}
                         >
                             Prototype 1
                         </Link>
@@ -158,21 +163,29 @@ function Home() {
                             href="/prototype2"
                             className="primary-button"
                             onClick={(e) => e.preventDefault()}
-                            style={{ opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(1)', pointerEvents: 'none' }}
+                            style={grayPrototypeButtonStyle}
                         >
                             Prototype 2
                         </Link>
                         <Link
                             href="/prototype3"
                             className="primary-button"
+                            style={grayPrototypeButtonStyle}
                         >
                             Prototype 3
                         </Link>
                         <Link
                             href="/prototype4"
                             className="primary-button"
+                            style={grayPrototypeButtonStyle}
                         >
                             Prototype 4
+                        </Link>
+                        <Link
+                            href="/kunstig-intelligens-bygger"
+                            className="primary-button"
+                        >
+                            Kunstig intelligens bygger
                         </Link>
                     </div>
                 </div>
