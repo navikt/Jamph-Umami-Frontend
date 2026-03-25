@@ -5,7 +5,6 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { getDashboard } from "../../data/dashboard";
 import { normalizeUrlToPath } from "../../lib/utils";
 import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
-import GuidedTour from "../../components/GuidedTour";
 import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
 import FilterBar from "../../components/dashboard/FilterBar";
 import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
@@ -25,7 +24,7 @@ const Prototype3 = () => {
     const rawDateRangeFromUrl = searchParams.get("periode");
     const dateRangeFromUrl = rawDateRangeFromUrl === 'this-month' ? 'current_month'
         : rawDateRangeFromUrl === 'last-month' ? 'last_month'
-        : rawDateRangeFromUrl;
+            : rawDateRangeFromUrl;
 
     const dashboardId = searchParams.get("visning");
     const dashboard = getDashboard(dashboardId);
@@ -96,8 +95,7 @@ const Prototype3 = () => {
     const [customWidgets, setCustomWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
     const [widgetOrder, setWidgetOrder] = useState<string[]>(DEFAULT_WIDGETS.map(w => w.id));
     const [editingWidget, setEditingWidget] = useState<{ sql: string; chartType: string; title: string; aiPrompt?: string; result?: any } | null>(null);
-    const [aiByggerOpen, setAiByggerOpen] = useState(false);
-    const [tourActive, setTourActive] = useState(true);
+    const [aiByggerOpen, setAiByggerOpen] = useState(true);
 
     const [activeFilters, setActiveFilters] = useState({
         pathOperator: defaultPathOperator,
@@ -324,96 +322,95 @@ const Prototype3 = () => {
 
     return (
         <>
-        <DashboardLayout
-            title={`Prototype 3 – ${dashboard.title}`}
-            description={dashboard.description}
-            filters={
-                <FilterBar
-                    dashboard={dashboard}
-                    defaultUrlFormValue={domainFromUrl ? `https://${domainFromUrl}${searchParams.get('path') || '/'}` : DEFAULT_URL}
-                    tempDateRange={tempDateRange}
-                    setTempDateRange={setTempDateRange}
-                    customStartDate={customStartDate}
-                    setCustomStartDate={setCustomStartDate}
-                    customEndDate={customEndDate}
-                    setCustomEndDate={setCustomEndDate}
-                    visualDateRange={getVisualDateRange()}
-                    tempMetricType={tempMetricType}
-                    setTempMetricType={setTempMetricType}
-                    customFilterValues={customFilterValues}
-                    onCustomFilterChange={handleCustomFilterChange}
-                    hasChanges={hasChanges}
-                    onUpdate={handleUpdate}
-                    onUrlResolved={handleUrlResolved}
-                    onExport={handleExport}
-                    onImport={() => importInputRef.current?.click()}
-                    aiByggerOpen={aiByggerOpen}
-                    onAiByggerOpenChange={setAiByggerOpen}
-                    aiByggerPanel={
-                        <AiByggerPanel
-                            websiteId={effectiveWebsiteId}
-                            path={activeFilters.urlFilters[0] || '/'}
-                            pathOperator={activeFilters.pathOperator || 'starts-with'}
-                            startDate={activeFilters.customStartDate}
-                            endDate={activeFilters.customEndDate}
-                            editWidget={editingWidget}
-                            onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
+            <DashboardLayout
+                title={`Prototype 3 – ${dashboard.title}`}
+                description={dashboard.description}
+                filters={
+                    <FilterBar
+                        dashboard={dashboard}
+                        defaultUrlFormValue={domainFromUrl ? `https://${domainFromUrl}${searchParams.get('path') || '/'}` : DEFAULT_URL}
+                        tempDateRange={tempDateRange}
+                        setTempDateRange={setTempDateRange}
+                        customStartDate={customStartDate}
+                        setCustomStartDate={setCustomStartDate}
+                        customEndDate={customEndDate}
+                        setCustomEndDate={setCustomEndDate}
+                        visualDateRange={getVisualDateRange()}
+                        tempMetricType={tempMetricType}
+                        setTempMetricType={setTempMetricType}
+                        customFilterValues={customFilterValues}
+                        onCustomFilterChange={handleCustomFilterChange}
+                        hasChanges={hasChanges}
+                        onUpdate={handleUpdate}
+                        onUrlResolved={handleUrlResolved}
+                        onExport={handleExport}
+                        onImport={() => importInputRef.current?.click()}
+                        aiByggerOpen={aiByggerOpen}
+                        onAiByggerOpenChange={setAiByggerOpen}
+                        aiByggerPanel={
+                            <AiByggerPanel
+                                websiteId={effectiveWebsiteId}
+                                path={activeFilters.urlFilters[0] || '/'}
+                                pathOperator={activeFilters.pathOperator || 'starts-with'}
+                                startDate={activeFilters.customStartDate}
+                                endDate={activeFilters.customEndDate}
+                                editWidget={editingWidget}
+                                onAddWidget={(sql, chartType, result, size, title, aiPrompt) => {
+                                    const id = crypto.randomUUID();
+                                    setCustomWidgets(prev => [{ id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }, ...prev]);
+                                    setWidgetOrder(prev => [id, ...prev]);
+                                }}
+                            />
+                        }
+                    />
+                }
+                hideHeader
+            >
+                <input
+                    ref={importInputRef}
+                    type="file"
+                    accept=".json,application/json"
+                    style={{ display: 'none' }}
+                    onChange={handleImportFile}
+                />
+
+                {isResolvingDomain ? null : domainResolutionError ? (
+                    <div className="p-8 col-span-full">
+                        <Alert variant="error" size="small">{domainResolutionError}</Alert>
+                    </div>
+                ) : !effectiveWebsiteId ? (
+                    <div className="w-fit">
+                        <Alert variant="info" size="small">Legg til URL-sti og trykk Oppdater for å vise statistikk.</Alert>
+                    </div>
+                ) : !requiredFiltersAreSatisfied ? (
+                    <div className="w-fit">
+                        <Alert variant="info" size="small">
+                            {dashboard.customFilterRequiredMessage || "Velg nødvendige filtre for å vise data."}
+                        </Alert>
+                    </div>
+                ) : (
+                    <div>
+                        <PinnedGrid
+                            widgets={pinnedWidgets}
+                            onReorder={handleReorder}
+                            onDelete={handleDeleteWidget}
+                            onEdit={(w) => {
+                                setEditingWidget({ sql: w.customWidget.sql, chartType: w.customWidget.chartType, title: w.customWidget.title, aiPrompt: w.customWidget.aiPrompt, result: w.customWidget.result });
+                                setAiByggerOpen(true);
+                            }}
+                            onResize={(id, size) => {
+                                setCustomWidgets(prev => prev.map(cw => cw.id === id ? { ...cw, size } : cw));
+                            }}
+                            onDropExternal={(data) => {
                                 const id = crypto.randomUUID();
-                                setCustomWidgets(prev => [{ id, sql, chartType, result, size, title: title || '', aiPrompt: aiPrompt || '' }, ...prev]);
+                                setCustomWidgets(prev => [{ id, sql: data.sql, chartType: data.chartType, result: data.result, size: data.size, title: data.title || '', aiPrompt: data.aiPrompt || '' }, ...prev]);
                                 setWidgetOrder(prev => [id, ...prev]);
                             }}
                         />
-                    }
-                />
-            }
-            hideHeader
-        >
-            <input
-                ref={importInputRef}
-                type="file"
-                accept=".json,application/json"
-                style={{ display: 'none' }}
-                onChange={handleImportFile}
-            />
-
-            {isResolvingDomain ? null : domainResolutionError ? (
-                <div className="p-8 col-span-full">
-                    <Alert variant="error" size="small">{domainResolutionError}</Alert>
-                </div>
-            ) : !effectiveWebsiteId ? (
-                <div className="w-fit">
-                    <Alert variant="info" size="small">Legg til URL-sti og trykk Oppdater for å vise statistikk.</Alert>
-                </div>
-            ) : !requiredFiltersAreSatisfied ? (
-                <div className="w-fit">
-                    <Alert variant="info" size="small">
-                        {dashboard.customFilterRequiredMessage || "Velg nødvendige filtre for å vise data."}
-                    </Alert>
-                </div>
-            ) : (
-                <div>
-                    <PinnedGrid
-                        widgets={pinnedWidgets}
-                        onReorder={handleReorder}
-                        onDelete={handleDeleteWidget}
-                        onEdit={(w) => {
-                            setEditingWidget({ sql: w.customWidget.sql, chartType: w.customWidget.chartType, title: w.customWidget.title, aiPrompt: w.customWidget.aiPrompt, result: w.customWidget.result });
-                            setAiByggerOpen(true);
-                        }}
-                        onResize={(id, size) => {
-                            setCustomWidgets(prev => prev.map(cw => cw.id === id ? { ...cw, size } : cw));
-                        }}
-                        onDropExternal={(data) => {
-                            const id = crypto.randomUUID();
-                            setCustomWidgets(prev => [{ id, sql: data.sql, chartType: data.chartType, result: data.result, size: data.size, title: data.title || '', aiPrompt: data.aiPrompt || '' }, ...prev]);
-                            setWidgetOrder(prev => [id, ...prev]);
-                        }}
-                    />
-                    {/* AI-bygger removed – now in accordion in FilterBar */}
-                </div>
-            )}
-        </DashboardLayout>
-        <GuidedTour active={tourActive} onClose={() => setTourActive(false)} />
+                        {/* AI-bygger removed – now in accordion in FilterBar */}
+                    </div>
+                )}
+            </DashboardLayout>
         </>
     );
 };
