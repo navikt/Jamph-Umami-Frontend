@@ -35,6 +35,7 @@ import EventJourney from "./pages/analysis/EventJourney.tsx";
 import UserProfile from "./pages/analysis/UserProfile.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import DashboardOverview from "./pages/dashboard/DashboardOverview.tsx";
+import TestModell from "./pages/TestModell.tsx";
 
 
 const routes = [
@@ -72,7 +73,8 @@ const routes = [
     { path: "/diagnose", component: <Diagnosis /> },
     { path: "/profil", component: <UserProfile /> },
     { path: "/dashboards", component: <DashboardOverview /> },
-    { path: "/dashboard", component: <Dashboard /> }
+    { path: "/dashboard", component: <Dashboard /> },
+    { path: "/api/testmodell", component: <TestModell /> }
 ];
 
 export default routes;
