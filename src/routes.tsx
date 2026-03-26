@@ -74,7 +74,7 @@ const routes = [
     { path: "/profil", component: <UserProfile /> },
     { path: "/dashboards", component: <DashboardOverview /> },
     { path: "/dashboard", component: <Dashboard /> },
-    { path: "/api/testmodell", component: <TestModell /> }
+    { path: "/testmodell", component: <TestModell /> }
 ];
 
 export default routes;
