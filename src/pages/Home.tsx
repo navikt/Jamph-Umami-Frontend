@@ -189,6 +189,7 @@ function Home() {
                         </Link>
                     </div>
                 </div>
+
             </Page.Block>
 
             {/* Full-width contact section - Home page only */}
