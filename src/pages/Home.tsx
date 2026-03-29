@@ -187,6 +187,13 @@ function Home() {
                         >
                             Kunstig intelligens bygger
                         </Link>
+                        <Link
+                            href="/ki-bygger"
+                            className="primary-button"
+                            style={grayPrototypeButtonStyle}
+                        >
+                            KI-bygger
+                        </Link>
                     </div>
                 </div>
 
