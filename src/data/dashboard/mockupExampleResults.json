@@ -1233,7 +1233,7 @@
       "sidevisninger": 7417
     }
   ],
-  "4": [
+  "3": [
     {
       "kilde": "aksel.nav.no",
       "sidevisninger": 8435
@@ -1295,7 +1295,7 @@
       "sidevisninger": 5
     }
   ],
-  "5": [
+  "4": [
     {
       "kilde": "(direkte)",
       "unike_besokende": 6334
@@ -1789,7 +1789,7 @@
       "unike_besokende": 1
     }
   ],
-  "6": [
+  "5": [
     {
       "term": "Skjæringspunkt (a)",
       "estimat": 709.5783,
@@ -1811,7 +1811,7 @@
       "n": 285
     }
   ],
-  "7": [
+  "6": [
     {
       "kategori": "Utførte handlinger",
       "sesjoner": 4691
@@ -1830,288 +1830,6 @@
     }
   ],
   "8": [
-    {
-      "antall": 111,
-      "andel": "5%",
-      "steg_1": "introkort → ?",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 104,
-      "andel": "4.7%",
-      "steg_1": "introkort → /komponenter",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 103,
-      "andel": "4.6%",
-      "steg_1": "header → /designsystemet",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 86,
-      "andel": "3.9%",
-      "steg_1": "header → ?",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 85,
-      "andel": "3.8%",
-      "steg_1": "header → /god-praksis",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 48,
-      "andel": "2.2%",
-      "steg_1": "god praksis forside → ?",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 40,
-      "andel": "1.8%",
-      "steg_1": "header → /produktbloggen",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 34,
-      "andel": "1.5%",
-      "steg_1": "sok",
-      "steg_2": "sok",
-      "steg_3": "sok",
-      "steg_4": "sok",
-      "steg_5": "sok",
-      "steg_6": "sok",
-      "steg_7": "sok",
-      "steg_8": "sok",
-      "steg_9": "sok",
-      "steg_10": "sok"
-    },
-    {
-      "antall": 25,
-      "andel": "1.1%",
-      "steg_1": "header → /komponenter",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 23,
-      "andel": "1%",
-      "steg_1": "God Praksis Forside → /god-praksis/brukerinnsikt",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 22,
-      "andel": "1%",
-      "steg_1": "God Praksis Forside → /god-praksis/design",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 20,
-      "andel": "0.9%",
-      "steg_1": "footer → /side/om-aksel",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 20,
-      "andel": "0.9%",
-      "steg_1": "God Praksis Forside → /god-praksis/brev",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 18,
-      "andel": "0.8%",
-      "steg_1": "footer → https://github.com/navikt/aksel",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 18,
-      "andel": "0.8%",
-      "steg_1": "introkort → /komponenter",
-      "steg_2": "introkort → /komponenter",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 17,
-      "andel": "0.8%",
-      "steg_1": "header → ?",
-      "steg_2": "header → ?",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 16,
-      "andel": "0.7%",
-      "steg_1": "introkort → /ikoner",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 16,
-      "andel": "0.7%",
-      "steg_1": "introkort → /grunnleggende/styling/design-tokens",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 15,
-      "andel": "0.7%",
-      "steg_1": "hamburger → ?",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    },
-    {
-      "antall": 15,
-      "andel": "0.7%",
-      "steg_1": "God Praksis Forside → /god-praksis/universell-utforming",
-      "steg_2": "-",
-      "steg_3": "-",
-      "steg_4": "-",
-      "steg_5": "-",
-      "steg_6": "-",
-      "steg_7": "-",
-      "steg_8": "-",
-      "steg_9": "-",
-      "steg_10": "-"
-    }
-  ],
-  "9": [
     {
       "operativsystem": "Mac OS",
       "unike_besokende": 4798
@@ -2141,7 +1859,7 @@
       "unike_besokende": 8
     }
   ],
-  "10": [
+  "9": [
     {
       "neste_side": "/",
       "antall_sok": 920

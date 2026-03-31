@@ -8,7 +8,6 @@ import { AiByggerPanel } from "../../components/analysis/AiByggerPanel";
 import PinnedGrid, { PinnedItem } from "../../components/dashboard/PinnedGrid";
 import FilterBar from "../../components/dashboard/FilterBar";
 import defaultWidgetsData from "../../data/dashboard/defaultWidgets.json";
-import mockupResults from "../../data/dashboard/mockupResults.json";
 
 const AKSEL_WEBSITE_ID = 'fb69e1e9-1bd3-4fd9-b700-9d035cbf44e1';
 const DEFAULT_URL = 'https://aksel.nav.no/';
@@ -82,13 +81,10 @@ const Prototype3 = () => {
 
     type WidgetEntry = { id: string; sql: string; chartType: string; result: any; size: { cols: number; rows: number }; title: string; aiPrompt?: string };
 
-    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => {
-        const rows = (mockupResults as Record<string, unknown[]>)[w.id];
-        return {
-            ...w,
-            result: rows ? { success: true, data: rows, rowCount: rows.length } : null,
-        };
-    });
+    const DEFAULT_WIDGETS: WidgetEntry[] = defaultWidgetsData.widgets.map(w => ({
+        ...w,
+        result: null,
+    }));
 
 
 
@@ -329,24 +325,11 @@ const Prototype3 = () => {
                     <FilterBar
                         dashboard={dashboard}
                         defaultUrlFormValue={domainFromUrl ? `https://${domainFromUrl}${searchParams.get('path') || '/'}` : DEFAULT_URL}
-                        tempDateRange={tempDateRange}
-                        setTempDateRange={setTempDateRange}
-                        customStartDate={customStartDate}
-                        setCustomStartDate={setCustomStartDate}
-                        customEndDate={customEndDate}
-                        setCustomEndDate={setCustomEndDate}
-                        visualDateRange={getVisualDateRange()}
-                        tempMetricType={tempMetricType}
-                        setTempMetricType={setTempMetricType}
                         customFilterValues={customFilterValues}
                         onCustomFilterChange={handleCustomFilterChange}
-                        hasChanges={hasChanges}
-                        onUpdate={handleUpdate}
                         onUrlResolved={handleUrlResolved}
                         onExport={handleExport}
                         onImport={() => importInputRef.current?.click()}
-                        aiByggerOpen={aiByggerOpen}
-                        onAiByggerOpenChange={setAiByggerOpen}
                         aiByggerPanel={
                             <AiByggerPanel
                                 websiteId={effectiveWebsiteId}

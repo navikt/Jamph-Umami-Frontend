@@ -13,6 +13,7 @@ interface Website {
 
 interface UrlSearchFormProps {
     children?: React.ReactNode;
+    actions?: React.ReactNode;
     targetPath?: string;
     defaultValue?: string;
     /** If provided, called with resolved website info instead of navigating */
@@ -21,7 +22,7 @@ interface UrlSearchFormProps {
     onInputChange?: (value: string) => void;
 }
 
-function UrlSearchFormPrototype({ children, targetPath = '/dashboard', defaultValue = '', onResolved, onInputChange }: UrlSearchFormProps) {
+function UrlSearchFormPrototype({ children, actions, targetPath = '/dashboard', defaultValue = '', onResolved, onInputChange }: UrlSearchFormProps) {
     const navigate = useNavigate();
     const [filteredData, setFilteredData] = useState<Website[] | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>(defaultValue);
@@ -151,16 +152,18 @@ function UrlSearchFormPrototype({ children, targetPath = '/dashboard', defaultVa
                         style={{ width: '100%' }}
                     />
                     <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm text-gray-600">URL-sti</span>
+                        <span className="text-sm text-gray-600">Inkluder alle undersider</span>
                         <select
                             className="text-sm bg-white border border-gray-300 rounded text-[#0067c5] font-medium cursor-pointer focus:outline-none py-1 px-2"
                             value={pathOperator}
                             onChange={(e) => setPathOperator(e.target.value as 'equals' | 'starts-with')}
                         >
-                            <option value="equals">er lik</option>
-                            <option value="starts-with">starter med</option>
+                            <option value="equals">Nei, bare denne siden</option>
+                            <option value="starts-with">Ja, hvor som helst under stien</option>
                         </select>
-                        <span className="text-sm text-gray-500">den innlimte URL-stien</span>
+                        <div className="ml-auto flex items-center gap-2">
+                            {actions}
+                        </div>
                     </div>
                     {alertVisible && <Alert style={{ marginTop: "20px" }} variant="warning">Denne siden har ikke fått støtte for Umami enda. Fortvil ikke — kontakt Team ResearchOps for å få lagt den til :)</Alert>}
                 </div>
