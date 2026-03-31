@@ -46,7 +46,6 @@ const allTabs = [
     { value: 'barchart',     label: 'Stolpe' },
     { value: 'piechart',     label: 'Kake' },
     { value: 'statcards',    label: 'Nøkkeltall' },
-    { value: 'stegvisning',  label: 'Sideflyt' },
     { value: 'kiforklaring', label: 'KI forklaring' },
 ];
 
@@ -211,57 +210,43 @@ ORDER BY term`;
 
     const examplesAiBuilder = [
         {
-            prompt: `Daglige sidevisninger i 2025`,
-            title: `Daglige sidevisninger for ${pathLabel} i 2025`,
+            title: `Daglige sidevisninger for siden i 2025`,
             sql: `SELECT\n  FORMAT_TIMESTAMP('%Y-%m-%d', created_at) AS dato,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY dato\nORDER BY dato ASC;`,
-            tabOrder: ['linechart','areachart','barchart','table','piechart','stegvisning','kiforklaring'],
+            tabOrder: ['linechart','areachart','barchart','table','piechart','kiforklaring'],
             explanation: `Gjennomsnittet ligger på rundt 165 sidevisninger per dag, men med et tydelig fall i helger. De mest besøkte dagene er mandag og tirsdag, noe som bekrefter at dette er et arbeidsverktøy brukt primært i arbeidstiden. En markant topp mot slutten av september kan tyde på en lansering eller større oppdatering i designsystemet som skapte ekstra oppmerksomhet.`,
         },
         {
-            prompt: `Topp 12 mest besøkte undersider i 2025`,
-            title: `Topp 12 sider under ${path}`,
+            title: `Topp 12 undersider under siden i 2025`,
             sql: `SELECT\n  url_path AS side,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY side\nORDER BY sidevisninger DESC\nLIMIT 12;`,
-            tabOrder: ['barchart','table','piechart','linechart','areachart','stegvisning','kiforklaring'],
+            tabOrder: ['barchart','table','piechart','linechart','areachart','kiforklaring'],
             explanation: `Komponent-sidene dominerer klart, og Button er den mest besøkte enkelt-siden – et naturlig startpunkt for utviklere som utforsker designsystemet for første gang. /god-praksis og /komponenter utgjør til sammen 7 av topp-10. En overraskende lav trafikk under /mønstre tatt i betraktning innholdets relevans kan tyde på at seksjonen er vanskelig å oppdage.`,
         },
         {
-            prompt: `Sidevisninger per måned i 2025`,
-            title: `Sidevisninger per måned – ${pathLabel}`,
+            title: `Sidevisninger per måned for siden i 2025`,
             sql: `SELECT\n  EXTRACT(MONTH FROM created_at) AS maaned,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY maaned\nORDER BY maaned ASC;`,
-            tabOrder: ['areachart','linechart','barchart','table','piechart','stegvisning','kiforklaring'],
+            tabOrder: ['areachart','linechart','barchart','table','piechart','kiforklaring'],
             explanation: `Januar og februar er klart sterkest, noe som gjenspeiler oppstart av nye prosjekter etter nyttår. Sommermånedene juni–august viser et fall på rundt 35–40 %, typisk for et verktøy brukt primært i arbeidstiden. Høsten viser en fin oppgang igjen, men når aldri januar-nivå fullt ut – en sesongkurve som gjentar seg år etter år for verktøy i denne kategorien.`,
         },
         {
-            prompt: `Hvordan beveger brukerne seg pa siden?`,
-            title: `Sideflyt fra ${path}`,
-            sql: '',
-            tabOrder: ['stegvisning'],
-            apiOnly: true,
-        },
-        {
-            prompt: `Trafikkilder i november 2025`,
-            title: `Trafikkilder – ${pathLabel}`,
+            title: `Topp 15 trafikkilder for siden i november 2025`,
             sql: `SELECT\n  COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(*) AS sidevisninger\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\n  AND EXTRACT(MONTH FROM created_at) = 11\nGROUP BY kilde\nORDER BY sidevisninger DESC\nLIMIT 15;`,
-            tabOrder: ['barchart','piechart','table','linechart','areachart','stegvisning','kiforklaring'],
+            tabOrder: ['barchart','piechart','table','linechart','areachart','kiforklaring'],
             explanation: `Nesten halvparten av trafikken i november kom direkte – brukerne har bokmerket siden eller kjenner URLen godt. Google stod for rundt 31 %, mens intern trafikk fra nav.no bidro med 12 %. Sosiale medier og nyhetsbrev utgjorde tilnærmet null, noe som er forventet for et profesjonelt designverktøy som ikke er rettet mot allmennheten.`,
         },
         {
-            prompt: `Eksterne nettsider besøkende kommer fra`,
-            title: `Inngående trafikkilder – ${pathLabel}`,
+            title: `Hvilke nettsider sender besøkende til siden? Topp inngående trafikkilder, unike besøkende per kilde i 2025`,
             sql: `SELECT\n  COALESCE(NULLIF(referrer_domain, ''), '(direkte)') AS kilde,\n  COUNT(DISTINCT session_id) AS unike_besokende\nFROM \`fagtorsdag-prod-81a6.umami_student.event\`\nWHERE\n  event_type = 1\n  AND website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM created_at) = 2025\nGROUP BY kilde\nORDER BY unike_besokende DESC\nLIMIT 1000;`,
-            tabOrder: ['barchart','piechart','table','linechart','areachart','stegvisning','kiforklaring'],
+            tabOrder: ['barchart','piechart','table','linechart','areachart','kiforklaring'],
             explanation: `De aller fleste innkommende lenkene kommer fra interne NAV-systemer og GitHub. google.com og github.com er de to klart største eksterne kildene, noe som tyder på at dokumentasjonen brukes aktivt som referanse i utviklingsarbeid. Sporadisk trafikk fra dev.to og stackoverflow antyder at internasjonale fagmiljøer også har funnet veien hit.`,
         },
         {
-            prompt: `Lineær regresjon: trend i daglige sidevisninger`,
-            title: `Regresjon: daglige sidevisninger – ${pathLabel}`,
+            title: `Lineær regresjon: er trenden i daglige sidevisninger for siden stigende eller fallende i 2025?`,
             sql: buildRegressionSQLInline(),
-            tabOrder: ['kiforklaring','table','linechart','areachart','barchart','piechart','stegvisning'],
+            tabOrder: ['kiforklaring','table','linechart','areachart','barchart','piechart'],
             explanation: `Et stigningstall på –0.83 tyder på at antall daglige sidevisninger avtar med nesten én visning per dag gjennom 2025. R² på 0.18 betyr at modellen forklarer rundt 18 % av variasjonen – resten er støy fra helger, helligdager og enkelttopper. RMSE på 42 sidevisninger tilsvarer omtrent ett standardavvik i normal daglig variasjon. Retningen er klar, men datagrunnlaget er for støyete til å trekke sterke konklusjoner om fremtidig utvikling.`,
         },
         {
-            prompt: `Nøkkeltall: handlinger, navigering og frafall`,
-            title: `Nøkkeltall – ${pathLabel}`,
+            title: `Nøkkeltall for siden i 2025`,
             sql: `WITH sessions AS (
   SELECT
     session_id,
@@ -282,12 +267,11 @@ UNION ALL
 SELECT 'Navigering uten handling', COUNTIF(event_count = 0 AND page_count > 1) FROM sessions
 UNION ALL
 SELECT 'Forlot nettstedet', COUNTIF(page_count = 1 AND event_count = 0) FROM sessions;`,
-            tabOrder: ['statcards', 'table', 'barchart', 'piechart', 'linechart', 'areachart', 'stegvisning', 'kiforklaring'],
+            tabOrder: ['statcards', 'table', 'barchart', 'piechart', 'linechart', 'areachart', 'kiforklaring'],
             explanation: `Av de besøkende i 2025 utførte nesten to tredeler minst én aktiv handling – et tegn på høy intensjonalitet. At rundt én av tre navigerte videre uten å klikke på noe er normalt for dokumentasjon der man gjerne leser uten å interagere. Kun et mindretall forlot siden uten noen form for videre engasjement, noe som er bemerkelsesverdig lavt og tyder på at landingssidene treffer brukernes behov godt.`,
         },
         {
-            prompt: `Hvilke handlinger gjør brukerne på siden?`,
-            title: `Handlinger på ${pathLabel}`,
+            title: `Hvilke handlinger utfører brukerne på siden i 2025? Vis første handling per sesjon, topp 20`,
             sql: `WITH sessions_on_page AS (
   -- Sessions that had custom events fired on this exact page
   SELECT DISTINCT session_id
@@ -329,50 +313,31 @@ events_numbered AS (
   FROM events_labeled
 ),
 total AS (SELECT COUNT(*) AS n FROM sessions_on_page),
-pivoted AS (
+first_actions AS (
   SELECT session_id,
-    MAX(CASE WHEN steg_num = 1  THEN handling END) AS steg_1,
-    MAX(CASE WHEN steg_num = 2  THEN handling END) AS steg_2,
-    MAX(CASE WHEN steg_num = 3  THEN handling END) AS steg_3,
-    MAX(CASE WHEN steg_num = 4  THEN handling END) AS steg_4,
-    MAX(CASE WHEN steg_num = 5  THEN handling END) AS steg_5,
-    MAX(CASE WHEN steg_num = 6  THEN handling END) AS steg_6,
-    MAX(CASE WHEN steg_num = 7  THEN handling END) AS steg_7,
-    MAX(CASE WHEN steg_num = 8  THEN handling END) AS steg_8,
-    MAX(CASE WHEN steg_num = 9  THEN handling END) AS steg_9,
-    MAX(CASE WHEN steg_num = 10 THEN handling END) AS steg_10
-  FROM events_numbered GROUP BY session_id
+    MAX(CASE WHEN steg_num = 1 THEN handling END) AS handling
+  FROM events_numbered
+  GROUP BY session_id
 )
 SELECT
+  COALESCE(handling, '(ingen hendelser)') AS handling,
   COUNT(*) AS antall,
-  CONCAT(ROUND(COUNT(*) * 100.0 / MAX(total.n), 1), '%') AS andel,
-  COALESCE(steg_1, '(ingen hendelser)') AS steg_1,
-  COALESCE(steg_2, '-') AS steg_2,
-  COALESCE(steg_3, '-') AS steg_3,
-  COALESCE(steg_4, '-') AS steg_4,
-  COALESCE(steg_5, '-') AS steg_5,
-  COALESCE(steg_6, '-') AS steg_6,
-  COALESCE(steg_7, '-') AS steg_7,
-  COALESCE(steg_8, '-') AS steg_8,
-  COALESCE(steg_9, '-') AS steg_9,
-  COALESCE(steg_10, '-') AS steg_10
-FROM pivoted, total
-GROUP BY steg_1, steg_2, steg_3, steg_4, steg_5, steg_6, steg_7, steg_8, steg_9, steg_10
+  CONCAT(ROUND(COUNT(*) * 100.0 / MAX(total.n), 1), '%') AS andel
+FROM first_actions, total
+GROUP BY handling
 ORDER BY antall DESC
 LIMIT 20;`,
-            tabOrder: ['table', 'barchart', 'piechart', 'linechart', 'areachart', 'stegvisning', 'kiforklaring'],
+            tabOrder: ['table', 'barchart', 'piechart', 'linechart', 'areachart', 'kiforklaring'],
             explanation: `Den klart vanligste brukersekvensen er å navigere via header-menyen til en annen hoveddel av nettstedet. Introkort-klikk er nest vanligst og tyder på at brukerne aktivt utforsker underkategorier. Svært få gjennomfører mer enn tre handlinger på én og samme side – besøkene er korte og målrettede, ikke utforskende.`,
         },
         {
-            prompt: `Hvilket operativsystem bruker brukerne?`,
-            title: `Operativsystem – ${pathLabel}`,
+            title: `Hvilket operativsystem bruker de besøkende på siden i 2025?`,
             sql: `SELECT\n  COALESCE(NULLIF(s.os, ''), '(ukjent)') AS operativsystem,\n  COUNT(DISTINCT e.session_id) AS unike_besokende\nFROM \`fagtorsdag-prod-81a6.umami_student.event\` e\nLEFT JOIN \`fagtorsdag-prod-81a6.umami_student.session\` s\n  ON e.session_id = s.session_id\nWHERE\n  e.event_type = 1\n  AND e.website_id = '${websiteId}'\n  ${pathConditionSQL}\n  AND EXTRACT(YEAR FROM e.created_at) = 2025\nGROUP BY operativsystem\nORDER BY unike_besokende DESC\nLIMIT 12;`,
-            tabOrder: ['piechart','barchart','table','areachart','linechart','stegvisning','kiforklaring'],
+            tabOrder: ['piechart','barchart','table','areachart','linechart','kiforklaring'],
             explanation: `Mac dominerer med over 58 % – ikke overraskende for en brukergruppe som i stor grad består av designere og frontend-utviklere. Windows 10 er nest størst, mens iOS og Android til sammen utgjør under 16 %. Dette bekrefter at designsystemet primært er et desktop-verktøy brukt i arbeidssituasjonen.`,
         },
         {
-            prompt: `Hvor navigerer brukere etter å ha søkt på siden?`,
-            title: `Navigering etter søk – ${pathLabel}`,
+            title: `Hvor navigerer brukere etter å ha søkt på siden i 2025?`,
             sql: `WITH sok_events AS (
   SELECT session_id, created_at AS sok_tid
   FROM \`fagtorsdag-prod-81a6.umami_student.event\`
@@ -403,7 +368,7 @@ WHERE rn = 1
 GROUP BY side
 ORDER BY antall_sok DESC
 LIMIT 25;`,
-            tabOrder: ['table', 'barchart', 'piechart', 'linechart', 'areachart', 'stegvisning', 'kiforklaring'],
+            tabOrder: ['table', 'barchart', 'piechart', 'linechart', 'areachart', 'kiforklaring'],
             explanation: `Etter søk ender nesten halvparten av brukerne opp på en komponent-side, med Button og Input som klare favoritter. Rundt 20 % navigerer til god-praksis-seksjonen, noe som tyder på at søk brukes like mye for konseptuelle spørsmål som for å finne spesifikke komponenter. Andelen som endte tilbake på forsiden var svært lav, noe som tyder på at søkeresultatene sjelden skuffer.`,
         },
     ];
@@ -426,7 +391,7 @@ LIMIT 25;`,
 
         // Check if prompt matches a pre-fetched example — use mock data instead of API calls
         const matchIdx = examplesAiBuilder.findIndex(ex =>
-            basePrompt === ex.prompt || basePrompt === ex.title
+            basePrompt === ex.title
         );
         if (matchIdx !== -1) {
             const item = examplesAiBuilder[matchIdx];
@@ -821,13 +786,10 @@ ORDER BY term`;
                         <Button variant="secondary" size="small" onClick={() => { setSelectedTidligere(null); setTidligereOpen(true); }}>
                             Eksempler
                         </Button>
-                        <Button variant="secondary" size="small" onClick={() => { setLagEgenSqlTitle(''); setLagEgenSqlOpen(true); }}>
-                            Lag egen SQL
-                        </Button>
                         <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />}
                             data-tour="lag-graf"
                             onClick={() => { shouldAutoExecuteRef.current = true; generateSqlFromAi(); }}>
-                            Lag graf
+                            Til resultater
                         </Button>
                     </div>
                 </div>
@@ -946,7 +908,7 @@ ORDER BY term`;
                                 </Button>
                             )}
                             <Button variant="secondary" size="small" onClick={() => setShareWidgetOpen(true)}>Del</Button>
-                            <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />} onClick={() => setStep(3)}>Avansert</Button>
+                            <Button variant="secondary" size="small" iconPosition="right" icon={<ChevronRight size={16} />} onClick={() => setStep(3)}>SQL</Button>
                         </div>
                     </div>
                     {shareWidgetOpen && <ShareWidgetModal
@@ -1110,10 +1072,10 @@ ORDER BY term`;
                     <div className="flex flex-col gap-2" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
                         {examplesAiBuilder.map((item) => (
                             <button
-                                key={item.prompt} type="button"
+                                key={item.title} type="button"
                                 className={`text-left border rounded-md px-4 py-3 cursor-pointer w-full ${selectedTidligere === examplesAiBuilder.indexOf(item) ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
                                 onClick={() => setSelectedTidligere(examplesAiBuilder.indexOf(item))}>
-                                {item.prompt}
+                                {item.title}
                             </button>
                         ))}
                     </div>
@@ -1125,7 +1087,7 @@ ORDER BY term`;
                             const order = item.tabOrder ?? [];
                             setTabOrder(order);
                             setIsApiOnly(!!(item as any).apiOnly);
-                            setAiPrompt(item.prompt);
+                            setAiPrompt(item.title);
                             setCurrentExplanation((item as any).explanation ?? null);
                             if ((item as any).apiOnly) {
                                 // Use pre-fetched journey mockup data
