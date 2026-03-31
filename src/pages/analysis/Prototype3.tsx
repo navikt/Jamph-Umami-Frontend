@@ -325,24 +325,11 @@ const Prototype3 = () => {
                     <FilterBar
                         dashboard={dashboard}
                         defaultUrlFormValue={domainFromUrl ? `https://${domainFromUrl}${searchParams.get('path') || '/'}` : DEFAULT_URL}
-                        tempDateRange={tempDateRange}
-                        setTempDateRange={setTempDateRange}
-                        customStartDate={customStartDate}
-                        setCustomStartDate={setCustomStartDate}
-                        customEndDate={customEndDate}
-                        setCustomEndDate={setCustomEndDate}
-                        visualDateRange={getVisualDateRange()}
-                        tempMetricType={tempMetricType}
-                        setTempMetricType={setTempMetricType}
                         customFilterValues={customFilterValues}
                         onCustomFilterChange={handleCustomFilterChange}
-                        hasChanges={hasChanges}
-                        onUpdate={handleUpdate}
                         onUrlResolved={handleUrlResolved}
                         onExport={handleExport}
                         onImport={() => importInputRef.current?.click()}
-                        aiByggerOpen={aiByggerOpen}
-                        onAiByggerOpenChange={setAiByggerOpen}
                         aiByggerPanel={
                             <AiByggerPanel
                                 websiteId={effectiveWebsiteId}
