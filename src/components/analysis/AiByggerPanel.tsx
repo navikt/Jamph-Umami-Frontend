@@ -424,6 +424,7 @@ LIMIT 25;`,
             : pathOperator === 'equals' ? ` (url_path = '${path}')` : '';
         const contextPrefix = `BigQuery-tabell: \`fagtorsdag-prod-81a6.umami_student.event\`. website_id = '${websiteId}'${pathDesc}. Svar kun med SQL.\n\nSpørsmål: `;
         setError(null);
+        let sqlResolved = false;
         try {
             const response = await fetch(`${import.meta.env.VITE_RAG_API_URL}/api/sql`, {
                 method: 'POST',
@@ -431,6 +432,11 @@ LIMIT 25;`,
                 body: JSON.stringify({ query: contextPrefix + basePrompt }),
             });
             const data = await response.json();
+            if (!response.ok || typeof data?.error === 'string') {
+                const msg = typeof data?.error === 'string' ? data.error : 'AI-serveren svarte med en feil.';
+                setError(msg);
+                return;
+            }
             let rawSql: string | undefined;
             if (typeof data?.sql === 'string') {
                 rawSql = data.sql;
@@ -444,17 +450,20 @@ LIMIT 25;`,
                     rawSql = rawSql.replaceAll('```sql\n', '').replaceAll('```sql', '').replaceAll('```\n', '').replaceAll('```', '');
                 }
                 setQuery(rawSql.trim());
+                sqlResolved = true;
             } else {
-                setQuery('-- Ingen SQL i svaret\n' + JSON.stringify(data, null, 2));
+                setError('AI-serveren svarte, men ingen SQL ble funnet i svaret.');
             }
         } catch {
-            setQuery(`-- Feil: Kunne ikke koble til AI-serveren\n\n${defaultQuery}`);
+            setError('Kunne ikke koble til AI-serveren. Sjekk at tjenesten kjører.');
         } finally {
-            const guessed = guessChartType(basePrompt);
-            setP2Tab(guessed);
-            if (guessed === 'regresjon') setRegressionTitle(basePrompt || defaultRegressionTitle);
-            shouldAutoExecuteRef.current = guessed !== 'stegvisning';
-            setStep(2);
+            if (sqlResolved) {
+                const guessed = guessChartType(basePrompt);
+                setP2Tab(guessed);
+                if (guessed === 'regresjon') setRegressionTitle(basePrompt || defaultRegressionTitle);
+                shouldAutoExecuteRef.current = guessed !== 'stegvisning';
+                setStep(2);
+            }
         }
     };
 
