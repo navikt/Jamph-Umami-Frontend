@@ -426,17 +426,8 @@ LIMIT 25;`,
                     
                     // Add debug info as SQL comments if present
                     let finalSql = rawSql.trim();
-                    if (data.debugInfo) {
-                        const debugComments: string[] = [];
-                        if (data.debugInfo.rawClassificationResponse) {
-                            debugComments.push(`-- Classification Response: ${data.debugInfo.rawClassificationResponse}`);
-                        }
-                        if (data.debugInfo.queryType) {
-                            debugComments.push(`-- Query Type: ${data.debugInfo.queryType}`);
-                        }
-                        if (debugComments.length > 0) {
-                            finalSql = debugComments.join('\n') + '\n\n' + finalSql;
-                        }
+                    if (data.debugInfo?.queryType) {
+                        finalSql = `-- Query Type: ${data.debugInfo.queryType}\n\n` + finalSql;
                     }
                     
                     setQuery(finalSql);
