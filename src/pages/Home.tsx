@@ -153,21 +153,6 @@ function Home() {
                             Gå til Grafbyggeren
                         </Link>
                         <Link
-                            href="/ai-builder"
-                            className="primary-button"
-                            style={grayPrototypeButtonStyle}
-                        >
-                            Prototype 1
-                        </Link>
-                        <Link
-                            href="/prototype2"
-                            className="primary-button"
-                            onClick={(e) => e.preventDefault()}
-                            style={grayPrototypeButtonStyle}
-                        >
-                            Prototype 2
-                        </Link>
-                        <Link
                             href="/prototype3"
                             className="primary-button"
                             style={grayPrototypeButtonStyle}
@@ -175,24 +160,18 @@ function Home() {
                             Prototype 3
                         </Link>
                         <Link
-                            href="/prototype4"
-                            className="primary-button"
-                            style={grayPrototypeButtonStyle}
-                        >
-                            Prototype 4
-                        </Link>
-                        <Link
-                            href="/kunstig-intelligens-bygger"
-                            className="primary-button"
-                        >
-                            Kunstig intelligens bygger
-                        </Link>
-                        <Link
                             href="/ki-bygger"
                             className="primary-button"
                             style={grayPrototypeButtonStyle}
                         >
                             KI-bygger
+                        </Link>
+                        <Link
+                            href="/endelig-prototype"
+                            className="primary-button"
+                            style={grayPrototypeButtonStyle}
+                        >
+                            Endelig prototype
                         </Link>
                     </div>
                 </div>
