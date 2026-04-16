@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { Heading, Tabs } from '@navikt/ds-react';
+import { useEffect, useState } from 'react';
+import { Tabs } from '@navikt/ds-react';
+import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import InputPanel from '../../components/ki-bygger/InputPanel';
 import GrafPanel from '../../components/ki-bygger/GrafPanel';
 import DashboardTab from '../../components/ki-bygger/DashboardTab';
@@ -172,7 +173,7 @@ export default function EndeligKI() {
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <div className="py-8 max-w-[1400px] mx-auto px-4">
+        <DashboardLayout title="KI-grafbygger" hideHeader>
             <Tabs value={activeTab} onChange={setActiveTab}>
                 <Tabs.List>
                     <Tabs.Tab value="grafbygger" label="Grafbygger" />
@@ -215,6 +216,6 @@ export default function EndeligKI() {
                     />
                 </Tabs.Panel>
             </Tabs>
-        </div>
+        </DashboardLayout>
     );
 }

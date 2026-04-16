@@ -74,8 +74,8 @@ export default function GrafPanel({
         try {
             formatSql(sqlValue);
             setSqlFeedback({ variant: 'success', message: 'SQL er gyldig!' });
-        } catch (e: any) {
-            setSqlFeedback({ variant: 'error', message: 'Ugyldig SQL: ' + (e.message || 'Syntaksfeil') });
+        } catch (e: unknown) {
+            setSqlFeedback({ variant: 'error', message: 'Ugyldig SQL: ' + (e instanceof Error ? e.message : 'Syntaksfeil') });
         }
     };
 
@@ -85,8 +85,8 @@ export default function GrafPanel({
         try {
             const stats = await estimateBigQueryQuery(sqlValue, 'Endelig KI');
             setSqlFeedback({ variant: 'info', message: `Estimert kostnad: $${stats?.estimatedCostUSD} USD · ${stats?.totalBytesProcessedGB} GB behandlet` });
-        } catch (err: any) {
-            setSqlFeedback({ variant: 'error', message: err.message || 'Kunne ikke estimere kostnad.' });
+        } catch (err: unknown) {
+            setSqlFeedback({ variant: 'error', message: err instanceof Error ? err.message : 'Kunne ikke estimere kostnad.' });
         } finally {
             setEstimating(false);
         }
@@ -252,6 +252,7 @@ export default function GrafPanel({
             <div className="border border-gray-200 rounded-lg bg-white mt-4">
                 <div className="flex items-center justify-between p-4">
                     <button
+                        type="button"
                         className="flex items-center gap-2 bg-transparent border-0 cursor-pointer"
                         onClick={() => setSqlOpen(!sqlOpen)}
                         aria-expanded={sqlOpen}

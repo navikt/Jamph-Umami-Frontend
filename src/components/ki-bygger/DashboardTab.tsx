@@ -88,13 +88,13 @@ export default function DashboardTab({
                             onClick={() => setSelectedDashboard(db)}
                             className={`relative p-6 rounded-xl text-center cursor-pointer transition-all ${
                                 selectedDashboard === db
-                                    ? 'border-2 border-blue-600 bg-blue-50 shadow-md'
-                                    : 'border border-gray-200 bg-white shadow-sm hover:border-gray-400'
+                                        ? 'border-2 shadow-md'
+                                        : 'border border-gray-200 bg-white shadow-sm hover:border-gray-400'
                             }`}
+                            style={selectedDashboard === db ? { borderColor: 'var(--a-border-action-selected)', backgroundColor: 'var(--a-surface-selected)' } : undefined}
                         >
                             <button
                                 className="absolute top-1.5 right-2 bg-transparent border-0 text-red-600 text-base cursor-pointer leading-none px-1 rounded opacity-0 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
-                                style={{ opacity: undefined }}
                                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
                                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '0'; }}
                                 onClick={(e) => { e.stopPropagation(); setDeletingDashboard(db); }}
@@ -131,7 +131,7 @@ export default function DashboardTab({
                         >
                             {(dashboardGraphs[selectedDashboard] ?? []).map((g, i) => (
                                 <div
-                                    key={i}
+                                    key={g.title + i}
                                     draggable
                                     onDragStart={() => { dragIndexRef.current = i; }}
                                     onDragOver={(e) => { e.preventDefault(); setDragOverIndex(i); }}
@@ -165,24 +165,27 @@ export default function DashboardTab({
                                             className="absolute inset-0 bg-black/45 flex flex-col items-center justify-center gap-3 rounded-xl z-10"
                                             onClick={(e) => e.stopPropagation()}
                                         >
-                                            <button
-                                                className="w-44 py-2 px-5 rounded-md border-0 bg-blue-600 text-white cursor-pointer text-sm font-medium"
+                                            <Button
+                                                variant="primary"
+                                                type="button"
                                                 onClick={() => { onOpenInGrafbygger(g); setExpandedCardIndex(null); }}
                                             >
                                                 Åpne i Grafbygger
-                                            </button>
-                                            <button
-                                                className="w-44 py-2 px-5 rounded-md border border-white bg-transparent text-white cursor-pointer text-sm font-medium"
+                                            </Button>
+                                            <Button
+                                                variant="secondary"
+                                                type="button"
                                                 onClick={() => handleToggleSize(i)}
                                             >
                                                 {g.size === 'full' ? 'Gjør halvbredde (1×2)' : 'Gjør fullbredde (2×2)'}
-                                            </button>
-                                            <button
-                                                className="w-44 py-2 px-5 rounded-md border-0 bg-red-500 text-white cursor-pointer text-sm font-medium"
+                                            </Button>
+                                            <Button
+                                                variant="danger"
+                                                type="button"
                                                 onClick={() => handleDeleteCard(i)}
                                             >
                                                 Slett
-                                            </button>
+                                            </Button>
                                         </div>
                                     )}
                                 </div>
