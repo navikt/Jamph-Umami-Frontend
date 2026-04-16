@@ -30,6 +30,7 @@ interface DashboardGraph {
     data: unknown[];
     size: 'half' | 'full';
     sql?: string;
+    grafTab?: GrafTab;
 }
    const KI_SUGGESTION = 'Ditt spørsmål er veldig spennende! Hva med å legge til «i måneden»?';
    const KI_SUGGESTION_ADDITION = ' i måneden';
@@ -148,7 +149,7 @@ export default function EndeligKI() {
         if (!previewResult) return;
         setDashboardGraphs((prev) => ({
             ...prev,
-            [dashboard]: [...(prev[dashboard] ?? []), { title: grafTitle, data: previewResult as unknown[], size, sql: sqlValue }],
+            [dashboard]: [...(prev[dashboard] ?? []), { title: grafTitle, data: previewResult as unknown[], size, sql: sqlValue, grafTab }],
         }));
         setSelectedDashboard(dashboard);
         setActiveTab('dashboard');
@@ -163,6 +164,7 @@ export default function EndeligKI() {
         setPreviewResult(graph.data as unknown[]);
         setGrafTitle(graph.title);
         setSqlValue(graph.sql || '');
+        setGrafTab(graph.grafTab || 'linechart');
         setKiSuggestion(null);
         setActiveTab('grafbygger');
     };
