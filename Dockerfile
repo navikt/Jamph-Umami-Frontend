@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 
 # Copy package files and .npmrc
-COPY package.json pnpm-lock.yaml* .npmrc ./
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml .npmrc ./
 
 # Install dependencies with cache mount
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
@@ -22,6 +22,7 @@ RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
 
 # Copy source code and build
 COPY . .
+ENV CI=true
 RUN pnpm run build
 
 # Production stage
@@ -33,7 +34,7 @@ RUN apk update && apk add --no-cache nodejs-25
 WORKDIR /app
 
 # Copy package files and .npmrc
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/.npmrc ./
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml /app/.npmrc ./
 
 # Install pnpm for production dependencies
 RUN apk add --no-cache npm && npm install -g corepack && corepack enable && corepack prepare pnpm@11.15.1 --activate
