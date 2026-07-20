@@ -2,7 +2,7 @@
   "name": "jamph",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@9.12.2",
+  "packageManager": "pnpm@11.15.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

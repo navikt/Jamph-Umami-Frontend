@@ -1,6 +1,14 @@
 packages:
   - "."
 
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - '@unhead/react@2.1.16'
+  - unhead@2.1.16
+
 onlyBuiltDependencies:
   - "@swc/core"
   - esbuild

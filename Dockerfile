@@ -2,7 +2,7 @@
 FROM cgr.dev/chainguard/wolfi-base@sha256:02dab76bd852a70556b5b2002195c8a5fdab77d323c433bf6642aab080489795 AS base
 
 # Install Node.js and enable pnpm
-RUN apk update && apk add --no-cache nodejs-25 npm && npm install -g corepack && corepack enable && corepack prepare pnpm@9.12.2 --activate
+RUN apk update && apk add --no-cache nodejs-25 npm && npm install -g corepack && corepack enable && corepack prepare pnpm@11.15.1 --activate
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -36,7 +36,7 @@ WORKDIR /app
 COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/.npmrc ./
 
 # Install pnpm for production dependencies
-RUN apk add --no-cache npm && npm install -g corepack && corepack enable && corepack prepare pnpm@9.12.2 --activate
+RUN apk add --no-cache npm && npm install -g corepack && corepack enable && corepack prepare pnpm@11.15.1 --activate
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
