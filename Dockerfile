@@ -17,7 +17,8 @@ COPY package.json pnpm-lock.yaml* .npmrc ./
 # Install dependencies with cache mount
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
     --mount=type=cache,id=pnpm,target=/pnpm/store \
-    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) pnpm install --frozen-lockfile
+    pnpm config set "//npm.pkg.github.com/:_authToken" "$(cat /run/secrets/NODE_AUTH_TOKEN)" && \
+    pnpm install --frozen-lockfile
 
 # Copy source code and build
 COPY . .
@@ -43,7 +44,8 @@ ENV PATH="$PNPM_HOME:$PATH"
 # Install production dependencies
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
     --mount=type=cache,id=pnpm,target=/pnpm/store \
-    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) pnpm install --prod --frozen-lockfile
+    pnpm config set "//npm.pkg.github.com/:_authToken" "$(cat /run/secrets/NODE_AUTH_TOKEN)" && \
+    pnpm install --prod --frozen-lockfile
 
 # Remove corepack/npm after installing dependencies
 RUN apk del npm
