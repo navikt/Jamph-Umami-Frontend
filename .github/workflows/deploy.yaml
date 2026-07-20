@@ -32,7 +32,7 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           build_secrets: |
-            NODE_AUTH_TOKEN=${{ secrets.JAMPH_FRONTEND_GH_READ_PACKAGES }}
+            NODE_AUTH_TOKEN=${{ secrets.READER_TOKEN }}
           build_args: |
             BUILD_NUMBER=${{ github.run_number }}
             BUILD_ID=${{ github.run_id }}
